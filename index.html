@@ -1533,55 +1533,47 @@ function deleteSalary(id) {
 }
 
 // ===================== DEUDAS =====================
-function liquidarDeudaCompleta(deudaId) {
-  const deuda = deudas.find(d => d.id === deudaId);
-  if (!deuda) return;
+function liquidarDeudaCompleta(id) {
+  const d = deudas.find(x => x.id === id);
+  if (!d) return;
 
   // 1. Confirmación de seguridad
-  const saldoALiquidar = deuda.saldo;
-  if (saldoALiquidar <= 0) {
-    showToast('⚠️ Esta deuda ya está en cero', 'warning');
-    return;
-  }
+  if (!confirm(`¿Deseas pagar el saldo TOTAL de $${d.saldo.toLocaleString()} para la deuda "${d.nombre}"?\n\nEsto aparecerá como un gasto de este mes.`)) return;
 
-  if (!confirm(`¿Deseas liquidar TOTALMENTE "${deuda.nombre}" por $${saldoALiquidar.toLocaleString()}?`)) {
-    return;
-  }
+  const montoALiquidar = d.saldo;
+  const mesActual = new Date().toISOString().substring(0, 7); // Ejemplo: "2026-05"
 
-  const fecha = new Date();
-  const mesActual = fecha.toISOString().substring(0, 7); // "2026-05"
-
-  // 2. Registrar el ABONO (Historial de Capital)
-  abonoHistorial.push({
-    id: Date.now(),
-    fecha: fecha.toLocaleDateString(),
-    deudaId: deuda.id,
-    deudaNombre: deuda.nombre,
-    tipo: 'Liquidación Total',
-    monto: saldoALiquidar,
-    nota: `Pago total de deuda (Liquidación)`
-  });
-
-  // 3. Registrar el GASTO (Descuento del Sueldo)
+  // 2. Crear el Gasto automático para descontar del sueldo
   if (!gastosPorMes[mesActual]) gastosPorMes[mesActual] = [];
   gastosPorMes[mesActual].push({
-    id: Date.now() + 1,
-    concepto: `LIQUIDACIÓN: ${deuda.nombre}`,
-    monto: saldoALiquidar,
+    id: Date.now(),
+    concepto: `LIQUIDACIÓN: ${d.nombre}`,
+    monto: montoALiquidar,
     categoria: 'Deudas',
-    fuente: deuda.fuente, // Usa la fuente asignada (Alcaldía/Periferia)
-    nota: 'Pago total realizado desde el botón Liquidar',
+    fuente: d.fuente || 'Alcaldia', // Usa la fuente de la deuda
+    nota: 'Pago total de la obligación',
     ts: Date.now()
   });
 
-  // 4. Actualizar la Deuda localmente
-  deuda.saldo = 0;
-  deuda.cuotas = 0;
-  deuda.pagada = true;
+  // 3. Registrar el Abono en el historial
+  abonoHistorial.push({
+    id: Date.now() + 1,
+    fecha: new Date().toLocaleDateString(),
+    deudaId: d.id,
+    deudaNombre: d.nombre,
+    tipo: 'Liquidación',
+    monto: montoALiquidar,
+    nota: 'Cierre de deuda'
+  });
 
-  // 5. Refrescar UI y notificar
-  actualizarTodo();
-  showToast(`🎊 ¡Felicidades! ${deuda.nombre} ha sido pagada totalmente.`, 'success');
+  // 4. Actualizar la deuda a estado pagado
+  d.saldo = 0;
+  d.cuotas = 0;
+  d.pagada = true;
+
+  // 5. Refrescar interfaz y avisar
+  actualizarTodo(); // Llama a tu función que refresca los renders
+  showToast('🎊 ¡Deuda liquidada! Se ha registrado el gasto en el mes actual.', 'success');
 }
   
 function setDebtFilter(f, el) {
@@ -1602,12 +1594,10 @@ function renderDeudas() {
 
   const el = document.getElementById('debt-list');
   el.innerHTML = '';
-  
   if (!list.length) {
     el.innerHTML = '<div class="empty-state"><div class="empty-icon">🔍</div>No se encontraron deudas</div>';
     return;
   }
-
   list.forEach(d => {
     const col = pctColor(d.tasa);
     el.innerHTML += `
@@ -1623,7 +1613,7 @@ function renderDeudas() {
         <button class="btn-edit" onclick="editDebt(${d.id})" title="Editar">✏</button>
         
         ${!d.pagada ? `
-          <button class="btn-edit" style="color:var(--purple); border-color:var(--purple);" 
+          <button class="btn-edit" style="color:#8b5cf6; border-color:#8b5cf6;" 
                   onclick="liquidarDeudaCompleta(${d.id})" title="Liquidar deuda completa">⚡</button>
           <button class="btn-edit" style="color:var(--success);" 
                   onclick="marcarPagada(${d.id})" title="Marcar como pagada">✓</button>
@@ -1634,7 +1624,6 @@ function renderDeudas() {
     </div>`;
   });
 }
-
 function openDebtModal(id=null) {
   editingDebtId = id;
   populateDeuFuente();
