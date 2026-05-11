@@ -2179,6 +2179,12 @@ function confirmarPagarCuota() {
   const fuente = document.getElementById('pc-fuente-pago').value;
   const nota = document.getElementById('pc-nota').value.trim() || ('Cuota deuda: ' + d.nombre);
 
+  // --- LOGICA PARA DESCONTAR DE LA DEUDA ---
+  if (d.cuotas > 0) d.cuotas -= 1; // Resta una cuota
+  d.saldo -= d.cuota;             // Resta el monto al saldo total
+  if (d.saldo < 0) d.saldo = 0;   // Evita saldos negativos
+  // -----------------------------------------
+
   const key = mkKey(mesActual);
   if (!gastosPorMes[key]) gastosPorMes[key] = [];
   gastosPorMes[key].push({
@@ -2192,8 +2198,15 @@ function confirmarPagarCuota() {
   });
 
   closePagarCuotaModal();
-  renderGastos();
-  showToast('Cuota de "' + d.nombre + '" registrada ✓', 'success');
+  
+  // ¡IMPORTANTE! Refresca ambas vistas
+  renderDeudas(); // Para que bajen las cuotas y el saldo en la tabla de deudas
+  renderGastos(); // Para ver el nuevo gasto registrado
+  
+  // Si tienes una función para actualizar los cuadros de arriba (Ingreso total, etc.)
+  if (typeof renderResumen === 'function') renderResumen();
+
+  showToast('Cuota de "' + d.nombre + '" descontada y registrada ✓', 'success');
 }
 
 // ===================== HISTORIAL =====================
