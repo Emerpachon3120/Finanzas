@@ -2179,11 +2179,21 @@ function confirmarPagarCuota() {
   const fuente = document.getElementById('pc-fuente-pago').value;
   const nota = document.getElementById('pc-nota').value.trim() || ('Cuota deuda: ' + d.nombre);
 
-  // --- LOGICA PARA DESCONTAR DE LA DEUDA ---
-  if (d.cuotas > 0) d.cuotas -= 1; // Resta una cuota
-  d.saldo -= d.cuota;             // Resta el monto al saldo total
-  if (d.saldo < 0) d.saldo = 0;   // Evita saldos negativos
-  // -----------------------------------------
+  // === NUEVA LÓGICA DE DESCUENTO ===
+  // 1. Restamos una cuota si aún quedan
+  if (d.cuotas > 0) {
+    d.cuotas -= 1;
+  }
+  
+  // 2. Restamos el valor de la cuota al saldo total
+  d.saldo -= d.cuota; 
+  
+  // 3. Si el saldo queda negativo o en cero, lo ajustamos y marcamos como pagada
+  if (d.saldo <= 0) {
+    d.saldo = 0;
+    d.pagada = true;
+  }
+  // ================================
 
   const key = mkKey(mesActual);
   if (!gastosPorMes[key]) gastosPorMes[key] = [];
@@ -2198,15 +2208,15 @@ function confirmarPagarCuota() {
   });
 
   closePagarCuotaModal();
-  
-  // ¡IMPORTANTE! Refresca ambas vistas
-  renderDeudas(); // Para que bajen las cuotas y el saldo en la tabla de deudas
-  renderGastos(); // Para ver el nuevo gasto registrado
-  
-  // Si tienes una función para actualizar los cuadros de arriba (Ingreso total, etc.)
-  if (typeof renderResumen === 'function') renderResumen();
 
-  showToast('Cuota de "' + d.nombre + '" descontada y registrada ✓', 'success');
+  // === REFRESCAR AMBAS TABLAS ===
+  renderDeudas(); // <--- Esta es la clave para que la tabla de deudas se actualice
+  renderGastos(); 
+  
+  // Si tienes una función para actualizar los totales de arriba:
+  if (typeof actualizarMetricas === 'function') actualizarMetricas();
+
+  showToast('Cuota de "' + d.nombre + '" descontada del saldo y registrada ✓', 'success');
 }
 
 // ===================== HISTORIAL =====================
