@@ -1570,7 +1570,7 @@ function liquidarDeudaCompleta(id) {
   
   const nuevoGasto = {
     id: Date.now(),
-    concepto: `LIQUIDACIÓN TOTAL: ${d.nombre}`,
+    concepto: `Liquidacón total: ${d.nombre}`,
     monto: montoFinal,
     categoria: 'Deudas',
     fuente: d.fuente || 'Alcaldia', // Prioriza la fuente asignada a la deuda
