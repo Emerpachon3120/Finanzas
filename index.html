@@ -855,6 +855,7 @@ th.sort-desc::after { content: ' ↓'; opacity: 1; color: var(--accent); }
     <button class="tab" onclick="showTab('amortizar', this)">📅 Amortiz.</button>
     <button class="tab" onclick="showTab('gastos', this)">✏️ Gastos</button>
     <button class="tab" onclick="showTab('historial', this)">📆 Historial</button>
+    <button class="tab" onclick="showTab('analisis', this)">📈 Análisis</button>
   </div>
 
   <!-- ==================== RESUMEN ==================== -->
@@ -876,6 +877,12 @@ th.sort-desc::after { content: ' ↓'; opacity: 1; color: var(--accent); }
     <div class="card">
       <p class="section-title">Carga de deuda por tasa de interés</p>
       <div id="debt-overview"></div>
+    </div>
+
+    <!-- Mini proyección en resumen -->
+    <div class="card" id="resumen-libertad-card" style="background:linear-gradient(135deg,rgba(16,185,129,0.05),rgba(14,165,233,0.04));border-color:rgba(16,185,129,0.2);">
+      <p class="section-title" style="color:var(--success);">🗓️ Día de libertad financiera</p>
+      <div id="resumen-libertad-content"></div>
     </div>
   </div>
 
@@ -1125,9 +1132,51 @@ th.sort-desc::after { content: ' ↓'; opacity: 1; color: var(--accent); }
     </div>
   </div>
 
-</div>
+  <!-- ==================== ANÁLISIS ==================== -->
+  <div id="tab-analisis" class="section">
 
-<!-- ==================== MODALS ==================== -->
+    <!-- Día de libertad financiera -->
+    <div class="card" style="background:linear-gradient(135deg,rgba(16,185,129,0.06),rgba(14,165,233,0.04));border-color:rgba(16,185,129,0.22);margin-bottom:14px;">
+      <p class="section-title" style="color:var(--success);">🗓️ Día de libertad financiera</p>
+      <div id="libertad-detail"></div>
+    </div>
+
+    <!-- Gráfica: Gastos por categoría mes a mes -->
+    <div class="card" style="margin-bottom:14px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:8px;">
+        <p class="section-title" style="margin-bottom:0;">📊 Gastos por categoría</p>
+        <div style="display:flex;gap:6px;align-items:center;">
+          <span style="font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace;">MESES:</span>
+          <select id="chart-meses-sel" class="filter-select" onchange="renderAnalisis()">
+            <option value="3">Últimos 3</option>
+            <option value="6" selected>Últimos 6</option>
+            <option value="12">Últimos 12</option>
+          </select>
+        </div>
+      </div>
+      <div id="chart-gastos-categorias" style="overflow-x:auto;"></div>
+      <div id="chart-gastos-leyenda" style="display:flex;flex-wrap:wrap;gap:10px;margin-top:12px;"></div>
+    </div>
+
+    <!-- Gráfica: Proyección de deudas -->
+    <div class="card" style="margin-bottom:14px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:8px;">
+        <p class="section-title" style="margin-bottom:0;">📉 Proyección de saldos</p>
+        <div style="display:flex;gap:6px;align-items:center;">
+          <span style="font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace;">VISTA:</span>
+          <select id="proj-tipo-sel" class="filter-select" onchange="renderAnalisis()">
+            <option value="individual">Por deuda</option>
+            <option value="total" selected>Saldo total</option>
+          </select>
+        </div>
+      </div>
+      <div id="chart-proyeccion" style="overflow-x:auto;"></div>
+      <div id="chart-proj-leyenda" style="display:flex;flex-wrap:wrap;gap:10px;margin-top:12px;"></div>
+    </div>
+
+  </div>
+
+</div><!-- /app -->
 
 <!-- Salary Modal -->
 <div class="modal-overlay" id="salary-modal">
@@ -1390,6 +1439,7 @@ function showTab(id, el) {
   if (id === 'amortizar') buildAmort();
   if (id === 'gastos') renderGastos();
   if (id === 'historial') renderHistorial();
+  if (id === 'analisis') renderAnalisis();
 }
 
 // ===================== RESUMEN =====================
@@ -1456,6 +1506,9 @@ function renderResumen() {
       <div class="debt-bar-sub">${fmt(d.saldo)} · ${d.cuotas} cuotas restantes</div>
     </div>`;
   });
+
+  // Mini libertad card en resumen
+  if (typeof renderLibertad === 'function') renderLibertad('resumen-libertad-content');
 }
 
 // ===================== SUELDOS =====================
@@ -2373,7 +2426,285 @@ function populateDeuFuente() {
   });
 }
 
-// ===================== INIT =====================
+// ===================== ANÁLISIS =====================
+
+function calcularLibertad() {
+  // Proyecta mes a mes cuándo se paga la última deuda con cuotas normales
+  const activas = deudas.filter(d => !d.pagada && d.saldo > 0);
+  if (!activas.length) return null;
+
+  // Simula cada deuda independientemente y busca el mes máximo
+  let maxMeses = 0;
+  const resumen = [];
+
+  activas.forEach(d => {
+    const tasaMes = d.tasa > 0 ? Math.pow(1 + d.tasa / 100, 1 / 12) - 1 : 0;
+    let saldo = d.saldo;
+    let meses = 0;
+    let interesTotal = 0;
+    while (saldo > 0 && meses < 600) {
+      const interes = saldo * tasaMes;
+      const capital = Math.min(d.cuota - interes, saldo);
+      if (capital <= 0) { meses = 600; break; } // cuota no alcanza
+      interesTotal += interes;
+      saldo = Math.max(0, saldo - capital);
+      meses++;
+    }
+    if (meses > maxMeses) maxMeses = meses;
+    resumen.push({ nombre: d.nombre, meses, interesTotal, saldo: d.saldo });
+  });
+
+  const fechaLibre = new Date();
+  fechaLibre.setMonth(fechaLibre.getMonth() + maxMeses);
+  return { meses: maxMeses, fecha: fechaLibre, resumen };
+}
+
+function renderLibertad(contenedorId) {
+  const el = document.getElementById(contenedorId);
+  if (!el) return;
+  const ti = totalIngresos();
+  const tc = totalCuotaActiva();
+  const info = calcularLibertad();
+
+  if (!info) {
+    el.innerHTML = `<div class="empty-state" style="padding:20px 0;"><div class="empty-icon">🎉</div>¡No tienes deudas activas!</div>`;
+    return;
+  }
+  if (info.meses >= 600) {
+    el.innerHTML = `<div class="alert-box">⚠ Alguna cuota no cubre los intereses. Revisa tus tasas y montos.</div>`;
+    return;
+  }
+
+  const mesesStr = info.meses >= 12
+    ? `${Math.floor(info.meses/12)} año(s) y ${info.meses%12} mes(es)`
+    : `${info.meses} mes(es)`;
+
+  const fechaStr = info.fecha.toLocaleDateString('es-CO', { year:'numeric', month:'long' });
+  const interesTotalGlobal = info.resumen.reduce((a,r) => a + r.interesTotal, 0);
+  const liberadoMensual = tc;
+
+  el.innerHTML = `
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:16px;">
+      <div class="metric" style="border-color:rgba(16,185,129,0.3);">
+        <div class="metric-label">Fecha estimada</div>
+        <div style="font-size:14px;font-weight:800;color:var(--success);font-family:'JetBrains Mono',monospace;margin-top:4px;">${fechaStr}</div>
+        <div class="metric-sub">${mesesStr}</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Intereses totales</div>
+        <div class="metric-value red">${fmt(interesTotalGlobal)}</div>
+        <div class="metric-sub">Costo financiero</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Se liberará</div>
+        <div class="metric-value green">${fmt(liberadoMensual)}</div>
+        <div class="metric-sub">Mensual adicional</div>
+      </div>
+    </div>
+    <div style="font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.08em;">PLAZO POR DEUDA</div>
+    ${info.resumen.sort((a,b)=>b.meses-a.meses).map(r => {
+      const pct = Math.round(r.meses / info.meses * 100);
+      return `
+      <div style="margin-bottom:10px;">
+        <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;">
+          <span style="font-weight:700;color:var(--text);">${r.nombre}</span>
+          <span style="font-family:'JetBrains Mono',monospace;color:var(--text2);">${r.meses >= 12 ? Math.floor(r.meses/12)+'a '+r.meses%12+'m' : r.meses+'m'}</span>
+        </div>
+        <div class="progress-bar"><div class="progress-fill" style="width:${pct}%;background:var(--success);"></div></div>
+      </div>`;
+    }).join('')}
+  `;
+}
+
+function svgBarChart(containerId, meses, categorias, colores) {
+  // meses: ['Ene 25', ...], categorias: { nombre: [valores...] }
+  const W = 560, H = 220, PAD = { t: 10, r: 10, b: 36, l: 56 };
+  const cW = W - PAD.l - PAD.r;
+  const cH = H - PAD.t - PAD.b;
+  const cats = Object.keys(categorias);
+  const nMeses = meses.length;
+  if (!nMeses) return;
+
+  // Stacked max
+  const totales = meses.map((_, i) => cats.reduce((s, c) => s + (categorias[c][i] || 0), 0));
+  const maxVal = Math.max(...totales, 1);
+
+  const barW = Math.min(38, (cW / nMeses) * 0.65);
+  const gap = cW / nMeses;
+
+  // Gridlines
+  const gridLines = [0, 0.25, 0.5, 0.75, 1].map(f => {
+    const y = PAD.t + cH * (1 - f);
+    const val = Math.round(maxVal * f);
+    return `<line x1="${PAD.l}" y1="${y}" x2="${W - PAD.r}" y2="${y}" stroke="#e2e8f0" stroke-width="1"/>
+            <text x="${PAD.l - 6}" y="${y + 4}" text-anchor="end" font-size="9" fill="#94a3b8" font-family="JetBrains Mono,monospace">${val >= 1000000 ? (val/1000000).toFixed(1)+'M' : val >= 1000 ? (val/1000).toFixed(0)+'k' : val}</text>`;
+  }).join('');
+
+  // Bars (stacked)
+  let bars = '';
+  meses.forEach((mes, i) => {
+    const x = PAD.l + gap * i + gap / 2 - barW / 2;
+    let yOff = PAD.t + cH;
+    cats.forEach((cat, ci) => {
+      const v = categorias[cat][i] || 0;
+      if (!v) return;
+      const bH = (v / maxVal) * cH;
+      yOff -= bH;
+      bars += `<rect x="${x}" y="${yOff}" width="${barW}" height="${bH}" fill="${colores[ci]}" rx="2" opacity="0.85">
+        <title>${cat}: ${fmt(v)}</title></rect>`;
+    });
+    // X label
+    bars += `<text x="${x + barW/2}" y="${H - PAD.b + 14}" text-anchor="middle" font-size="9" fill="#94a3b8" font-family="JetBrains Mono,monospace">${mes}</text>`;
+  });
+
+  const el = document.getElementById(containerId);
+  if (!el) return;
+  el.innerHTML = `<svg viewBox="0 0 ${W} ${H}" style="width:100%;min-width:320px;max-width:${W}px;display:block;">${gridLines}${bars}</svg>`;
+}
+
+function svgLineChart(containerId, meses, series, colores) {
+  // series: [{ nombre, valores:[...] }]
+  const W = 560, H = 200, PAD = { t: 10, r: 10, b: 36, l: 56 };
+  const cW = W - PAD.l - PAD.r;
+  const cH = H - PAD.t - PAD.b;
+  const nPuntos = meses.length;
+  if (!nPuntos) return;
+
+  const allVals = series.flatMap(s => s.valores);
+  const maxVal = Math.max(...allVals, 1);
+
+  const xPos = i => PAD.l + (i / (nPuntos - 1)) * cW;
+  const yPos = v => PAD.t + cH * (1 - v / maxVal);
+
+  const gridLines = [0, 0.25, 0.5, 0.75, 1].map(f => {
+    const y = PAD.t + cH * (1 - f);
+    const val = Math.round(maxVal * f);
+    return `<line x1="${PAD.l}" y1="${y}" x2="${W - PAD.r}" y2="${y}" stroke="#e2e8f0" stroke-width="1"/>
+            <text x="${PAD.l - 6}" y="${y + 4}" text-anchor="end" font-size="9" fill="#94a3b8" font-family="JetBrains Mono,monospace">${val >= 1000000 ? (val/1000000).toFixed(1)+'M' : val >= 1000 ? (val/1000).toFixed(0)+'k' : val}</text>`;
+  }).join('');
+
+  // X labels
+  let xLabels = meses.map((m, i) =>
+    `<text x="${xPos(i)}" y="${H - PAD.b + 14}" text-anchor="middle" font-size="9" fill="#94a3b8" font-family="JetBrains Mono,monospace">${m}</text>`
+  ).join('');
+
+  let lines = '';
+  series.forEach((s, si) => {
+    const color = colores[si] || '#0ea5e9';
+    // Area fill
+    let areaPath = `M${xPos(0)},${PAD.t + cH}`;
+    s.valores.forEach((v, i) => { areaPath += ` L${xPos(i)},${yPos(v)}`; });
+    areaPath += ` L${xPos(nPuntos-1)},${PAD.t + cH} Z`;
+    lines += `<path d="${areaPath}" fill="${color}" opacity="0.08"/>`;
+
+    // Line
+    let linePath = s.valores.map((v, i) => `${i===0?'M':'L'}${xPos(i)},${yPos(v)}`).join(' ');
+    lines += `<path d="${linePath}" fill="none" stroke="${color}" stroke-width="2.2" stroke-linejoin="round"/>`;
+
+    // Dots
+    s.valores.forEach((v, i) => {
+      lines += `<circle cx="${xPos(i)}" cy="${yPos(v)}" r="3.5" fill="${color}" stroke="#fff" stroke-width="1.5"><title>${s.nombre}: ${fmt(v)}</title></circle>`;
+    });
+  });
+
+  const el = document.getElementById(containerId);
+  if (!el) return;
+  el.innerHTML = `<svg viewBox="0 0 ${W} ${H}" style="width:100%;min-width:320px;max-width:${W}px;display:block;">${gridLines}${xLabels}${lines}</svg>`;
+}
+
+function renderAnalisis() {
+  // ── Libertad financiera ──
+  renderLibertad('libertad-detail');
+  renderLibertad('resumen-libertad-content'); // mini card en resumen
+
+  // ── Gastos por categoría ──
+  const nMeses = parseInt(document.getElementById('chart-meses-sel')?.value || 6);
+  const mesKeys = Object.keys(gastosPorMes).sort().slice(-nMeses);
+  const labels = mesKeys.map(k => fmtKey(k).substring(0,3) + ' ' + k.split('-')[0].slice(2));
+
+  const cats = Object.keys(catColors);
+  const dataCateg = {};
+  cats.forEach(c => { dataCateg[c] = mesKeys.map(k => (gastosPorMes[k]||[]).filter(g=>g.categoria===c).reduce((a,g)=>a+g.monto,0)); });
+
+  // Filtra categorías sin datos
+  const catsConDatos = cats.filter(c => dataCateg[c].some(v => v > 0));
+
+  const coloresBar = catsConDatos.map(c => catColors[c]);
+  const dataFiltrada = {};
+  catsConDatos.forEach(c => dataFiltrada[c] = dataCateg[c]);
+
+  svgBarChart('chart-gastos-categorias', labels, dataFiltrada, coloresBar);
+
+  // Leyenda
+  const legEl = document.getElementById('chart-gastos-leyenda');
+  if (legEl) legEl.innerHTML = catsConDatos.map((c,i) => `
+    <div style="display:flex;align-items:center;gap:5px;">
+      <div style="width:10px;height:10px;border-radius:2px;background:${coloresBar[i]};flex-shrink:0;"></div>
+      <span style="font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace;">${c}</span>
+    </div>`).join('');
+
+  // ── Proyección de saldos ──
+  const tipo = document.getElementById('proj-tipo-sel')?.value || 'total';
+  const activas = deudas.filter(d => !d.pagada && d.saldo > 0);
+  if (!activas.length) {
+    const el = document.getElementById('chart-proyeccion');
+    if (el) el.innerHTML = `<div class="empty-state" style="padding:30px 0;"><div class="empty-icon">✅</div>Sin deudas activas</div>`;
+    return;
+  }
+
+  // Proyecta hasta 36 meses o que se paguen todas
+  const maxMesesProj = Math.min(60, Math.max(...activas.map(d => {
+    const tm = d.tasa > 0 ? Math.pow(1+d.tasa/100,1/12)-1 : 0;
+    let s = d.saldo, m = 0;
+    while (s > 0 && m < 60) { s = Math.max(0, s-(d.cuota-s*tm)); m++; }
+    return m;
+  })));
+
+  const mesesProj = Array.from({length: maxMesesProj+1}, (_,i) => {
+    const d = new Date(); d.setMonth(d.getMonth()+i);
+    return d.toLocaleDateString('es-CO',{month:'short',year:'2-digit'});
+  });
+
+  let seriesProj, coloresProj;
+
+  if (tipo === 'individual') {
+    seriesProj = activas.map(d => {
+      const tm = d.tasa > 0 ? Math.pow(1+d.tasa/100,1/12)-1 : 0;
+      let s = d.saldo;
+      const vals = [s];
+      for (let m = 0; m < maxMesesProj; m++) {
+        s = Math.max(0, s - (d.cuota - s*tm));
+        vals.push(s);
+      }
+      return { nombre: d.nombre, valores: vals };
+    });
+    coloresProj = ['#0ea5e9','#8b5cf6','#f59e0b','#10b981','#ef4444','#ec4899','#06b6d4'];
+  } else {
+    // Total
+    const vals = Array.from({length: maxMesesProj+1}, (_, mi) => {
+      return activas.reduce((sum, d) => {
+        const tm = d.tasa > 0 ? Math.pow(1+d.tasa/100,1/12)-1 : 0;
+        let s = d.saldo;
+        for (let m = 0; m < mi; m++) s = Math.max(0, s-(d.cuota-s*tm));
+        return sum + s;
+      }, 0);
+    });
+    seriesProj = [{ nombre: 'Saldo total', valores: vals }];
+    coloresProj = ['#0ea5e9'];
+  }
+
+  svgLineChart('chart-proyeccion', mesesProj, seriesProj, coloresProj);
+
+  // Leyenda proyección
+  const legPEl = document.getElementById('chart-proj-leyenda');
+  if (legPEl) legPEl.innerHTML = seriesProj.map((s,i) => `
+    <div style="display:flex;align-items:center;gap:5px;">
+      <div style="width:18px;height:3px;border-radius:2px;background:${coloresProj[i]};flex-shrink:0;"></div>
+      <span style="font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace;">${s.nombre}</span>
+    </div>`).join('');
+}
+
+
 function init() {
   populateFuenteSelects();
   populateAmortSelect();
@@ -2558,18 +2889,18 @@ function actualizarTodo() {
   renderDeudas();
   renderGastos();
   if (typeof renderHistorial === 'function') renderHistorial();
+  if (typeof renderAnalisis === 'function') renderAnalisis();
 }
-// Función auxiliar para forzar el renderizado de todos los componentes
+
 function actualizarInterfazCompleta() {
   if (typeof populateFuenteSelects === 'function') populateFuenteSelects();
   if (typeof populateAmortSelect === 'function') populateAmortSelect();
   if (typeof populateAbonoSelect === 'function') populateAbonoSelect();
-  
-  // Estos son los que llenan las tarjetas que ves en blanco
   renderResumen();
   renderDeudas();
   renderGastos();
   if (typeof renderHistorial === 'function') renderHistorial();
+  if (typeof renderAnalisis === 'function') renderAnalisis();
 }
 
 // ── ESCRIBIR SHEETS ──────────────────────────────────────────────────────────
