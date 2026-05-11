@@ -1533,47 +1533,82 @@ function deleteSalary(id) {
 }
 
 // ===================== DEUDAS =====================
+// Función para mostrar mensajes flotantes (Toasts)
+function showToast(msg, type = 'info') {
+  const toast = document.getElementById('toast');
+  toast.innerText = msg;
+  toast.className = 'toast show ' + type;
+  setTimeout(() => { toast.className = 'toast'; }, 3000);
+}
+
+// Lógica para abrir/cerrar el modal de liquidación o deudas
+function openDebtModal(id = null) {
+  const modal = document.getElementById('debt-modal');
+  const title = document.getElementById('debt-modal-title');
+  // ... lógica para limpiar o cargar datos si es edición ...
+  modal.classList.add('active');
+}
+
+function closeDebtModal() {
+  document.getElementById('debt-modal').classList.remove('active');
+}
+  
 function liquidarDeudaCompleta(id) {
   const d = deudas.find(x => x.id === id);
   if (!d) return;
 
-  // 1. Confirmación de seguridad
-  if (!confirm(`¿Deseas pagar el saldo TOTAL de $${d.saldo.toLocaleString()} para la deuda "${d.nombre}"?\n\nEsto aparecerá como un gasto de este mes.`)) return;
+  // 1. Confirmación usando tu diseño de confirm-overlay si lo prefieres, 
+  // o el confirm estándar para mayor rapidez:
+  if (!confirm(`¿Deseas liquidar el TOTAL de "${d.nombre}" por ${fmt(d.saldo)}?\n\nEsto creará un gasto en el mes actual.`)) return;
 
-  const montoALiquidar = d.saldo;
-  const mesActual = new Date().toISOString().substring(0, 7); // Ejemplo: "2026-05"
+  const montoFinal = d.saldo;
+  // Usamos 'mesFiltro' que es la variable que tu app usa para navegar entre meses
+  const mesActual = typeof mesFiltro !== 'undefined' ? mesFiltro : new Date().toISOString().substring(0, 7);
 
-  // 2. Crear el Gasto automático para descontar del sueldo
+  // 2. Crear el Gasto automático para que reste del disponible
   if (!gastosPorMes[mesActual]) gastosPorMes[mesActual] = [];
-  gastosPorMes[mesActual].push({
+  
+  const nuevoGasto = {
     id: Date.now(),
-    concepto: `LIQUIDACIÓN: ${d.nombre}`,
-    monto: montoALiquidar,
+    concepto: `LIQUIDACIÓN TOTAL: ${d.nombre}`,
+    monto: montoFinal,
     categoria: 'Deudas',
-    fuente: d.fuente || 'Alcaldia', // Usa la fuente de la deuda
-    nota: 'Pago total de la obligación',
+    fuente: d.fuente || 'Alcaldia', // Prioriza la fuente asignada a la deuda
+    nota: `Pago final de la obligación. Saldo cancelado: ${fmt(montoFinal)}`,
     ts: Date.now()
-  });
+  };
 
-  // 3. Registrar el Abono en el historial
-  abonoHistorial.push({
-    id: Date.now() + 1,
-    fecha: new Date().toLocaleDateString(),
-    deudaId: d.id,
-    deudaNombre: d.nombre,
-    tipo: 'Liquidación',
-    monto: montoALiquidar,
-    nota: 'Cierre de deuda'
-  });
+  gastosPorMes[mesActual].push(nuevoGasto);
 
-  // 4. Actualizar la deuda a estado pagado
+  // 3. Registrar en el historial de abonos (Pestaña Abonos)
+  if (typeof abonoHistorial !== 'undefined') {
+    abonoHistorial.push({
+      id: Date.now() + 1,
+      fecha: new Date().toLocaleDateString(),
+      deudaId: d.id,
+      deudaNombre: d.nombre,
+      tipo: 'Liquidación Total',
+      monto: montoFinal,
+      nota: 'Cierre definitivo'
+    });
+  }
+
+  // 4. Actualizar estado de la deuda
   d.saldo = 0;
   d.cuotas = 0;
   d.pagada = true;
 
-  // 5. Refrescar interfaz y avisar
-  actualizarTodo(); // Llama a tu función que refresca los renders
-  showToast('🎊 ¡Deuda liquidada! Se ha registrado el gasto en el mes actual.', 'success');
+  // 5. Refrescar la UI
+  // Aquí llamamos a tus funciones globales de renderizado
+  if (typeof actualizarTodo === 'function') {
+    actualizarTodo(); 
+  } else {
+    renderDeudas();
+    renderGastos();
+    renderResumen();
+  }
+
+  showToast(`🎊 "${d.nombre}" ha sido liquidada con éxito`, 'success');
 }
   
 function setDebtFilter(f, el) {
