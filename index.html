@@ -2289,68 +2289,96 @@ async function cargarDesdeSheets() {
       gsGetRange('Abonos!B4:I2000'),
     ]);
 
-    // Sueldos
+    // --- PROCESAR SUELDOS ---
     const nuevosS = [];
     rowsS.forEach(row => {
-      const id = row[0], nombre = row[1], monto = parseFloat(row[2])||0;
-      const tipo = (row[3]||'fijo').toLowerCase(), activo = String(row[4]||'SI').toUpperCase();
-      if (!nombre || !monto || activo !== 'SI') return;
-      nuevosS.push({ id: parseInt(id)||g(), nombre, monto, tipo });
+      if (row.length < 2) return; // Salta filas vacías
+      const id = row[0], nombre = row[1], monto = parseFloat(row[2]) || 0;
+      const tipo = (row[3] || 'fijo').toLowerCase();
+      const activo = String(row[4] || 'SI').toUpperCase();
+      
+      if (nombre && activo === 'SI') {
+        nuevosS.push({ id: parseInt(id) || Date.now(), nombre, monto, tipo });
+      }
     });
-    if (nuevosS.length) sueldos = nuevosS;
+    sueldos = nuevosS; // Asignamos aunque esté vacío para limpiar la previa
 
-    // Deudas
+    // --- PROCESAR DEUDAS ---
     const nuevasD = [];
     rowsD.forEach(row => {
-      const nombre = row[1];
-      if (!nombre) return;
-      const id = row[0], cuota = parseFloat(row[2])||0, saldo = parseFloat(row[3])||0;
-      const cuotas = parseInt(row[4])||0, tasa = parseFloat(row[5])||0, fuente = row[6]||'';
-      const pagada = String(row[8]||'NO').toUpperCase() === 'SI';
-      const badge = tasa>=40?'danger':tasa>=20?'warning':tasa>0?'info':'success';
-      nuevasD.push({ id: parseInt(id)||g(), nombre, cuota, saldo, cuotas, tasa, fuente, badge, pagada });
+      if (row.length < 2) return;
+      const id = row[0], nombre = row[1];
+      const cuota = parseFloat(row[2]) || 0, saldo = parseFloat(row[3]) || 0;
+      const cuotas = parseInt(row[4]) || 0, tasa = parseFloat(row[5]) || 0;
+      const fuente = row[6] || '', pagada = String(row[8] || 'NO').toUpperCase() === 'SI';
+      
+      const badge = tasa >= 40 ? 'danger' : tasa >= 20 ? 'warning' : tasa > 0 ? 'info' : 'success';
+      
+      if (nombre) {
+        nuevasD.push({ id: parseInt(id) || Date.now(), nombre, cuota, saldo, cuotas, tasa, fuente, badge, pagada });
+      }
     });
-    if (nuevasD.length) deudas = nuevasD;
+    deudas = nuevasD;
 
-    // Gastos
+    // --- PROCESAR GASTOS ---
     const nuevoG = {};
     rowsG.forEach(row => {
-      const mes = String(row[1]||'').trim(), concepto = row[2]||'';
-      const monto = parseFloat(row[5])||0;
-      if (!mes || !concepto || !monto) return;
-      const categoria = row[3]||'Otro', fuente = row[4]||'';
-      const nota = row[6]||'', ts = row[7] ? new Date(row[7]).getTime() : Date.now();
-      if (!nuevoG[mes]) nuevoG[mes] = [];
-      nuevoG[mes].push({ id: parseInt(row[0])||g(), concepto, monto, categoria, fuente, nota, ts });
+      if (row.length < 3) return;
+      const id = row[0], mes = String(row[1] || '').trim(), concepto = row[2] || '';
+      const monto = parseFloat(row[5]) || 0;
+      
+      if (mes && concepto) {
+        const categoria = row[3] || 'Otro', fuente = row[4] || '';
+        const nota = row[6] || '', ts = row[7] ? new Date(row[7]).getTime() : Date.now();
+        
+        if (!nuevoG[mes]) nuevoG[mes] = [];
+        nuevoG[mes].push({ id: parseInt(id) || Date.now(), concepto, monto, categoria, fuente, nota, ts });
+      }
     });
-    if (Object.keys(nuevoG).length) gastosPorMes = nuevoG;
+    gastosPorMes = nuevoG;
 
-    // Abonos
+    // --- PROCESAR ABONOS ---
     const nuevosA = [];
     rowsA.forEach(row => {
-      const monto = parseFloat(row[5])||0;
-      if (!monto) return;
-      nuevosA.push({ id: parseInt(row[0])||g(), fecha: row[1]||'', deudaId: parseInt(row[2])||0, deudaNombre: row[3]||'', tipo: row[4]||'capital', monto, nota: row[6]||'' });
+      if (row.length < 5) return;
+      const monto = parseFloat(row[5]) || 0;
+      if (monto > 0) {
+        nuevosA.push({ 
+          id: parseInt(row[0]) || Date.now(), 
+          fecha: row[1] || '', 
+          deudaId: parseInt(row[2]) || 0, 
+          deudaNombre: row[3] || '', 
+          tipo: row[4] || 'capital', 
+          monto, 
+          nota: row[6] || '' 
+        });
+      }
     });
-    if (nuevosA.length) abonoHistorial = nuevosA;
+    abonoHistorial = nuevosA;
 
-    // Refrescar UI
-    populateFuenteSelects();
-    populateAmortSelect();
-    populateAbonoSelect();
-    renderResumen();
-    renderDeudas();
-    renderGastos();
-    renderHistorial();
-
+    // --- REFRESCAR TODO ---
+    actualizarTodo();
+    
     const bv = document.getElementById('bienvenida-screen');
     if (bv) bv.style.display = 'none';
     bdCargada = true;
-    showToast('✅ Datos cargados desde Google Sheets', 'success');
-  } catch(err) {
+    showToast('✅ Datos sincronizados', 'success');
+
+  } catch (err) {
     console.error('[gs_connector]', err);
-    showToast('❌ Error al leer Sheets: ' + err.message, 'danger');
+    showToast('❌ Error de red: ' + err.message, 'danger');
   }
+}
+
+// Función auxiliar para agrupar todos los renders
+function actualizarTodo() {
+  populateFuenteSelects();
+  populateAmortSelect();
+  populateAbonoSelect();
+  renderResumen();
+  renderDeudas();
+  renderGastos();
+  if (typeof renderHistorial === 'function') renderHistorial();
 }
 
 // ── ESCRIBIR SHEETS ──────────────────────────────────────────────────────────
