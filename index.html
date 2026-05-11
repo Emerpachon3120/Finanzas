@@ -1533,6 +1533,57 @@ function deleteSalary(id) {
 }
 
 // ===================== DEUDAS =====================
+function liquidarDeudaCompleta(deudaId) {
+  const deuda = deudas.find(d => d.id === deudaId);
+  if (!deuda) return;
+
+  // 1. Confirmación de seguridad
+  const saldoALiquidar = deuda.saldo;
+  if (saldoALiquidar <= 0) {
+    showToast('⚠️ Esta deuda ya está en cero', 'warning');
+    return;
+  }
+
+  if (!confirm(`¿Deseas liquidar TOTALMENTE "${deuda.nombre}" por $${saldoALiquidar.toLocaleString()}?`)) {
+    return;
+  }
+
+  const fecha = new Date();
+  const mesActual = fecha.toISOString().substring(0, 7); // "2026-05"
+
+  // 2. Registrar el ABONO (Historial de Capital)
+  abonoHistorial.push({
+    id: Date.now(),
+    fecha: fecha.toLocaleDateString(),
+    deudaId: deuda.id,
+    deudaNombre: deuda.nombre,
+    tipo: 'Liquidación Total',
+    monto: saldoALiquidar,
+    nota: `Pago total de deuda (Liquidación)`
+  });
+
+  // 3. Registrar el GASTO (Descuento del Sueldo)
+  if (!gastosPorMes[mesActual]) gastosPorMes[mesActual] = [];
+  gastosPorMes[mesActual].push({
+    id: Date.now() + 1,
+    concepto: `LIQUIDACIÓN: ${deuda.nombre}`,
+    monto: saldoALiquidar,
+    categoria: 'Deudas',
+    fuente: deuda.fuente, // Usa la fuente asignada (Alcaldía/Periferia)
+    nota: 'Pago total realizado desde el botón Liquidar',
+    ts: Date.now()
+  });
+
+  // 4. Actualizar la Deuda localmente
+  deuda.saldo = 0;
+  deuda.cuotas = 0;
+  deuda.pagada = true;
+
+  // 5. Refrescar UI y notificar
+  actualizarTodo();
+  showToast(`🎊 ¡Felicidades! ${deuda.nombre} ha sido pagada totalmente.`, 'success');
+}
+  
 function setDebtFilter(f, el) {
   debtFilter = f;
   document.querySelectorAll('#debt-filters .filter-chip').forEach(c => c.classList.remove('active'));
@@ -1551,10 +1602,12 @@ function renderDeudas() {
 
   const el = document.getElementById('debt-list');
   el.innerHTML = '';
+  
   if (!list.length) {
     el.innerHTML = '<div class="empty-state"><div class="empty-icon">🔍</div>No se encontraron deudas</div>';
     return;
   }
+
   list.forEach(d => {
     const col = pctColor(d.tasa);
     el.innerHTML += `
@@ -1568,7 +1621,14 @@ function renderDeudas() {
       <span class="debt-amt" style="color:${col};">${d.tasa > 0 ? d.tasa + '%' : '—'}</span>
       <span style="display:flex;gap:4px;justify-content:center;">
         <button class="btn-edit" onclick="editDebt(${d.id})" title="Editar">✏</button>
-        ${!d.pagada ? `<button class="btn-edit" style="color:var(--success);" onclick="marcarPagada(${d.id})" title="Marcar como pagada">✓</button>` : ''}
+        
+        ${!d.pagada ? `
+          <button class="btn-edit" style="color:var(--purple); border-color:var(--purple);" 
+                  onclick="liquidarDeudaCompleta(${d.id})" title="Liquidar deuda completa">⚡</button>
+          <button class="btn-edit" style="color:var(--success);" 
+                  onclick="marcarPagada(${d.id})" title="Marcar como pagada">✓</button>
+        ` : ''}
+        
         <button class="btn-delete" onclick="deleteDebt(${d.id})" title="Eliminar">×</button>
       </span>
     </div>`;
@@ -2444,37 +2504,30 @@ async function gsClearAndWrite(sheetName, rows) {
 }
 
 async function guardarEnSheets() {
-  if (!gsToken) { showToast('⚠️ Primero conecta tu cuenta de Google', 'warning'); return; }
-
-  const btnSave = document.getElementById('btn-gsave');
-  if (btnSave) { btnSave.textContent = '⏳ Guardando...'; btnSave.disabled = true; }
-
+  if (!gsToken) { showToast('⚠️ Conecta Google primero', 'warning'); return; }
+  
   try {
-    // Sueldos
+    // Esto enviará los nuevos saldos (0), los nuevos gastos y el historial de abonos
     const rowsS = sueldos.map(s => [s.id, s.nombre, s.monto, s.tipo, 'SI']);
-    await gsClearAndWrite('Sueldos', rowsS);
-
-    // Deudas
     const rowsD = deudas.map(d => [d.id, d.nombre, d.cuota, d.saldo, d.cuotas, d.tasa, d.fuente||'', d.pagada?'Pagada':'Activa', d.pagada?'SI':'NO']);
-    await gsClearAndWrite('Deudas', rowsD);
-
-    // Gastos
+    
     const rowsG = [];
-    Object.entries(gastosPorMes).sort().forEach(([mes, gastos]) => {
-      gastos.forEach(g => rowsG.push([g.id, mes, g.concepto, g.categoria, g.fuente, g.monto, g.nota||'', new Date(g.ts).toISOString().substring(0,16).replace('T',' ')]));
+    Object.entries(gastosPorMes).forEach(([mes, lista]) => {
+      lista.forEach(g => rowsG.push([g.id, mes, g.concepto, g.categoria, g.fuente, g.monto, g.nota, new Date(g.ts).toISOString()]));
     });
-    await gsClearAndWrite('Gastos', rowsG);
 
-    // Abonos
-    const rowsA = abonoHistorial.map(a => [a.id, a.fecha||'', a.deudaId, a.deudaNombre||'', a.tipo, a.monto, a.nota||'']);
-    await gsClearAndWrite('Abonos', rowsA);
+    const rowsA = abonoHistorial.map(a => [a.id, a.fecha, a.deudaId, a.deudaNombre, a.tipo, a.monto, a.nota]);
 
-    showToast('☁️ Datos guardados en Google Sheets', 'success');
-  } catch(err) {
-    console.error('[gs_connector save]', err);
-    showToast('❌ Error al guardar: ' + err.message, 'danger');
-  } finally {
-    if (btnSave) { btnSave.textContent = '☁️ Guardar en Sheets'; btnSave.disabled = false; }
+    await Promise.all([
+      gsClearAndWrite('Sueldos', rowsS),
+      gsClearAndWrite('Deudas', rowsD),
+      gsClearAndWrite('Gastos', rowsG),
+      gsClearAndWrite('Abonos', rowsA)
+    ]);
+
+    showToast('☁️ Todo guardado y actualizado', 'success');
+  } catch (e) {
+    showToast('❌ Error al guardar', 'danger');
   }
 }
 </script>
