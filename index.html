@@ -2273,20 +2273,37 @@ function gsLogin() {
 
 // ── LEER SHEETS ──────────────────────────────────────────────────────────────
 async function gsGetRange(range) {
-  // Agregamos ?valueRenderOption=UNFORMATTED_VALUE para que ignore el signo $ y los puntos de miles
-  const url = `https://sheets.googleapis.com/v4/spreadsheets/${GS_SHEET_ID}/values/${encodeURIComponent(range)}?valueRenderOption=UNFORMATTED_VALUE`;
+  // Usamos FORMATTED_VALUE para leer exactamente lo que ves en pantalla
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${GS_SHEET_ID}/values/${encodeURIComponent(range)}?valueRenderOption=FORMATTED_VALUE`;
   const res = await fetch(url, { headers: { Authorization: 'Bearer ' + gsToken } });
-  if (!res.ok) throw new Error(`Error leyendo ${range}: ${res.status}`);
   const data = await res.json();
   return data.values || [];
 }
   
-  function parsearMonto(valor) {
+function parsearMonto(valor) {
   if (valor === undefined || valor === null || valor === '') return 0;
   if (typeof valor === 'number') return valor;
-  // Si llega como texto "$ 800.000", quitamos todo lo que no sea número o punto decimal
-  const limpio = String(valor).replace(/[^0-9.-]+/g, "");
-  return parseFloat(limpio) || 0;
+
+  let s = String(valor).trim();
+  
+  // 1. Quitamos el signo de pesos y espacios
+  s = s.replace('$', '').replace(/\s/g, '');
+
+  // 2. CASO CRÍTICO: Si el formato es 800.000 (punto como miles)
+  // Contamos cuántos caracteres hay después del último punto
+  const partes = s.split('.');
+  if (partes.length > 1 && partes[partes.length - 1].length === 3) {
+    // Es muy probable que sea separador de miles (ej: 1.000 o 800.000)
+    s = s.replace(/\./g, ''); 
+  } else {
+    // Si solo hay un punto y dos números, es decimal (ej: 10.50)
+    // No hacemos nada o ajustamos según necesites
+  }
+
+  // 3. Reemplazamos coma por punto (por si acaso)
+  s = s.replace(',', '.');
+
+  return parseFloat(s) || 0;
 }
 
 async function cargarDesdeSheets() {
