@@ -2289,92 +2289,84 @@ async function cargarDesdeSheets() {
       gsGetRange('Abonos!B4:I2000'),
     ]);
 
-    // --- PROCESAR SUELDOS ---
+    // 1. PROCESAR SUELDOS
     const nuevosS = [];
     rowsS.forEach(row => {
-      if (row.length < 2) return; // Salta filas vacías
-      const id = row[0], nombre = row[1], monto = parseFloat(row[2]) || 0;
-      const tipo = (row[3] || 'fijo').toLowerCase();
+      if (!row || row.length < 2) return;
+      const nombre = row[1];
+      const monto = parseFloat(String(row[2]).replace(/[^0-9.-]+/g,"")) || 0;
       const activo = String(row[4] || 'SI').toUpperCase();
-      
       if (nombre && activo === 'SI') {
-        nuevosS.push({ id: parseInt(id) || Date.now(), nombre, monto, tipo });
+        nuevosS.push({ id: parseInt(row[0]) || Date.now(), nombre, monto, tipo: (row[3] || 'fijo') });
       }
     });
-    sueldos = nuevosS; // Asignamos aunque esté vacío para limpiar la previa
+    if (nuevosS.length > 0) sueldos = nuevosS;
 
-    // --- PROCESAR DEUDAS ---
+    // 2. PROCESAR DEUDAS
     const nuevasD = [];
     rowsD.forEach(row => {
-      if (row.length < 2) return;
-      const id = row[0], nombre = row[1];
-      const cuota = parseFloat(row[2]) || 0, saldo = parseFloat(row[3]) || 0;
-      const cuotas = parseInt(row[4]) || 0, tasa = parseFloat(row[5]) || 0;
-      const fuente = row[6] || '', pagada = String(row[8] || 'NO').toUpperCase() === 'SI';
-      
-      const badge = tasa >= 40 ? 'danger' : tasa >= 20 ? 'warning' : tasa > 0 ? 'info' : 'success';
-      
+      if (!row || row.length < 2) return;
+      const nombre = row[1];
       if (nombre) {
-        nuevasD.push({ id: parseInt(id) || Date.now(), nombre, cuota, saldo, cuotas, tasa, fuente, badge, pagada });
-      }
-    });
-    deudas = nuevasD;
-
-    // --- PROCESAR GASTOS ---
-    const nuevoG = {};
-    rowsG.forEach(row => {
-      if (row.length < 3) return;
-      const id = row[0], mes = String(row[1] || '').trim(), concepto = row[2] || '';
-      const monto = parseFloat(row[5]) || 0;
-      
-      if (mes && concepto) {
-        const categoria = row[3] || 'Otro', fuente = row[4] || '';
-        const nota = row[6] || '', ts = row[7] ? new Date(row[7]).getTime() : Date.now();
-        
-        if (!nuevoG[mes]) nuevoG[mes] = [];
-        nuevoG[mes].push({ id: parseInt(id) || Date.now(), concepto, monto, categoria, fuente, nota, ts });
-      }
-    });
-    gastosPorMes = nuevoG;
-
-    // --- PROCESAR ABONOS ---
-    const nuevosA = [];
-    rowsA.forEach(row => {
-      if (row.length < 5) return;
-      const monto = parseFloat(row[5]) || 0;
-      if (monto > 0) {
-        nuevosA.push({ 
-          id: parseInt(row[0]) || Date.now(), 
-          fecha: row[1] || '', 
-          deudaId: parseInt(row[2]) || 0, 
-          deudaNombre: row[3] || '', 
-          tipo: row[4] || 'capital', 
-          monto, 
-          nota: row[6] || '' 
+        nuevasD.push({
+          id: parseInt(row[0]) || Date.now(),
+          nombre: nombre,
+          cuota: parseFloat(String(row[2]).replace(/[^0-9.-]+/g,"")) || 0,
+          saldo: parseFloat(String(row[3]).replace(/[^0-9.-]+/g,"")) || 0,
+          cuotas: parseInt(row[4]) || 0,
+          tasa: parseFloat(String(row[5]).replace(/[^0-9.-]+/g,"")) || 0,
+          fuente: row[6] || '',
+          pagada: String(row[8] || 'NO').toUpperCase() === 'SI'
         });
       }
     });
-    abonoHistorial = nuevosA;
+    if (nuevasD.length > 0) deudas = nuevasD;
 
-    // --- REFRESCAR TODO ---
-    actualizarTodo();
-    
+    // 3. PROCESAR GASTOS
+    const nuevoG = {};
+    rowsG.forEach(row => {
+      if (!row || row.length < 3) return;
+      const mes = String(row[1] || '').trim();
+      const monto = parseFloat(String(row[5]).replace(/[^0-9.-]+/g,"")) || 0;
+      if (mes && row[2] && monto > 0) {
+        if (!nuevoG[mes]) nuevoG[mes] = [];
+        nuevoG[mes].push({
+          id: parseInt(row[0]) || Date.now(),
+          concepto: row[2],
+          monto: monto,
+          categoria: row[3] || 'Otro',
+          fuente: row[4] || '',
+          nota: row[6] || '',
+          ts: row[7] ? new Date(row[7]).getTime() : Date.now()
+        });
+      }
+    });
+    if (Object.keys(nuevoG).length > 0) gastosPorMes = nuevoG;
+
+    // 4. REFRESCAR TODA LA INTERFAZ
+    // Esta parte es vital para que los ceros desaparezcan
+    actualizarInterfazCompleta();
+
+    // Ocultar pantalla de carga/bienvenida si existe
     const bv = document.getElementById('bienvenida-screen');
     if (bv) bv.style.display = 'none';
+    
     bdCargada = true;
-    showToast('✅ Datos sincronizados', 'success');
+    showToast('✅ Datos sincronizados con éxito', 'success');
 
   } catch (err) {
-    console.error('[gs_connector]', err);
-    showToast('❌ Error de red: ' + err.message, 'danger');
+    console.error('Error detallado:', err);
+    showToast('❌ Error al procesar datos: ' + err.message, 'danger');
   }
 }
 
-// Función auxiliar para agrupar todos los renders
-function actualizarTodo() {
-  populateFuenteSelects();
-  populateAmortSelect();
-  populateAbonoSelect();
+// Función auxiliar para forzar el renderizado de todos los componentes
+function actualizarInterfazCompleta() {
+  if (typeof populateFuenteSelects === 'function') populateFuenteSelects();
+  if (typeof populateAmortSelect === 'function') populateAmortSelect();
+  if (typeof populateAbonoSelect === 'function') populateAbonoSelect();
+  
+  // Estos son los que llenan las tarjetas que ves en blanco
   renderResumen();
   renderDeudas();
   renderGastos();
