@@ -233,6 +233,49 @@
 
   /* ── SEARCH INPUT ── */
   .search-wrap { position:relative; margin-bottom:12px; }
+
+  /* Legacy search-box class */
+  .search-box {
+    position: relative;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    background: #fff;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 0 12px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  }
+  .search-box svg {
+    width: 16px;
+    height: 16px;
+    color: var(--text3);
+    flex-shrink: 0;
+  }
+  .search-box input {
+    flex: 1;
+    border: none;
+    background: transparent;
+    padding: 10px 12px;
+    font-size: 13px;
+    font-family: inherit;
+    color: var(--text);
+    outline: none;
+  }
+
+  /* Section sub-title */
+  .section-sub {
+    font-size: 12px;
+    color: var(--text3);
+    margin-top: 2px;
+  }
+
+  /* Date filter label */
+  .date-filter-label {
+    color: var(--text3);
+    font-size: 12px;
+    white-space: nowrap;
+  }
   .search-wrap svg { position:absolute; left:12px; top:50%; transform:translateY(-50%); color:var(--text3); width:16px; }
   .search-input {
     width:100%; background:#fff; border:1.5px solid var(--border);
@@ -1090,7 +1133,7 @@ const FIRMA_TI   = 'data:image/png;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1
 // ============================================================
 let DB_STATIC = { dependencias:[], oficinas:[], personas:[], equipos_static:[] };
 // Versión de caché — incrementar fuerza reload desde Sheets
-const CACHE_VERSION = '2.6';
+const CACHE_VERSION = '2.7';
 if (localStorage.getItem('cache_version') !== CACHE_VERSION) {
   ['equipos','mantenimientos','backups','incidencias'].forEach(k => localStorage.removeItem(k));
   localStorage.setItem('cache_version', CACHE_VERSION);
