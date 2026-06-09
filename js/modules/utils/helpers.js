@@ -4,7 +4,17 @@
    ===================================================================== */
 
 /** Genera un ID autoincremental único */
-function g() { return ++nextId; }
+function g() {
+  const usados = new Set([
+    ...sueldos.map(x => x.id),
+    ...deudas.map(x => x.id),
+    ...abonoHistorial.map(x => x.id),
+    ...Object.values(gastosPorMes).flat().map(x => x.id),
+  ]);
+  nextId++;
+  while (usados.has(nextId)) nextId++;
+  return nextId;
+}
 
 /** Construye la clave de mes a partir de un objeto {year, month} */
 function mkKey(m) {
