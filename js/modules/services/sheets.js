@@ -33,7 +33,7 @@ function gsLogin() {
 // ── Lectura de rangos ─────────────────────────────────────────────
 
 async function gsGetRange(range) {
-  const url = `https://sheets.googleapis.com/v4/spreadsheets/${GS_SHEET_ID}/values/${encodeURIComponent(range)}?valueRenderOption=FORMATTED_VALUE`;
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${GS_SHEET_ID}/values/${encodeURIComponent(range)}?valueRenderOption=UNFORMATTED_VALUE`;
   const res  = await fetch(url, { headers: { Authorization: 'Bearer ' + gsToken } });
   const data = await res.json();
   return data.values || [];
