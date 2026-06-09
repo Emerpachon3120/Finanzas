@@ -265,3 +265,34 @@ function confirmarPagarCuota() {
   renderGastos();
   showToast(`Cuota de "${d.nombre}" descontada del saldo y registrada ✓`, 'success');
 }
+
+function getSugerenciasGastos(filtro = '') {
+  // Recopilar todos los gastos de todos los meses
+  const todos = Object.values(gastosPorMes).flat();
+  
+  // Agrupar por concepto
+  const agrupados = {};
+  todos.forEach(g => {
+    const key = g.concepto.toLowerCase().trim();
+    if (!agrupados[key]) {
+      agrupados[key] = {
+        concepto:  g.concepto,
+        categoria: g.categoria,
+        fuente:    g.fuente,
+        montos:    [],
+        veces:     0,
+      };
+    }
+    agrupados[key].montos.push(g.monto);
+    agrupados[key].veces++;
+  });
+
+  // Calcular promedio y ordenar por frecuencia
+  return Object.values(agrupados)
+    .map(s => ({
+      ...s,
+      promedio: Math.round(s.montos.reduce((a, b) => a + b, 0) / s.montos.length),
+    }))
+    .filter(s => filtro === '' || s.concepto.toLowerCase().includes(filtro.toLowerCase()))
+    .sort((a, b) => b.veces - a.veces);
+}
