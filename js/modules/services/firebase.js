@@ -135,3 +135,5 @@ function _sincronizarContadorIds() {
     if (maxId >= nextId) nextId = maxId + 1;
   }
 }
+window.cargarDesdeFirebase = cargarDesdeFirebase;
+window.guardarEnFirebase   = guardarEnFirebase;
