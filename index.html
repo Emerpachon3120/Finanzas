@@ -13,9 +13,6 @@
   <link rel="stylesheet" href="styles/main.css"/>
   <link rel="stylesheet" href="styles/components.css"/>
   <link rel="stylesheet" href="styles/responsive.css"/>
-
-  <!-- Google Identity Services (OAuth para Google Sheets) -->
-  <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
 <div class="app">
@@ -29,10 +26,10 @@
     <div class="header-badges">
       <button class="header-badge badge-green" id="btn-gsync"
         style="cursor:pointer;border:none;font-family:inherit;font-size:inherit;font-weight:inherit;letter-spacing:inherit;"
-        onclick="gsLogin()">🔗 Conectar Google</button>
+        onclick="cargarDesdeFirebase()">🔗 Conectar</button>
       <button class="header-badge badge-blue" id="btn-gsave"
         style="cursor:pointer;border:none;font-family:inherit;font-size:inherit;font-weight:inherit;letter-spacing:inherit;display:none;"
-        onclick="guardarEnSheets()">☁️ Guardar en Sheets</button>
+        onclick="guardarEnFirebase()">☁️ Guardar</button>
       <div class="header-badge badge-blue" id="header-date">—</div>
       <div class="header-badge badge-green" id="header-status">● EN ORDEN</div>
     </div>
@@ -48,18 +45,18 @@
       <div style="font-size:56px; margin-bottom:16px;">📊</div>
       <div style="font-size:22px; font-weight:800; font-family:'Outfit',sans-serif; color:var(--text); margin-bottom:8px;">Finanzas Personales</div>
       <div style="font-size:13px; color:var(--text3); font-family:'Outfit',sans-serif; margin-bottom:32px; line-height:1.6;">
-        Conecta tu cuenta de Google para cargar<br>tus datos desde Google Sheets automáticamente.
+        Haz clic para cargar tus datos<br>desde Firebase automáticamente.
       </div>
-      <button onclick="gsLogin()" style="
+      <button onclick="cargarDesdeFirebase()" style="
         background: linear-gradient(135deg, #0ea5e9, #2563eb);
         color:#fff; border:none; border-radius:14px;
         padding:14px 32px; font-size:15px; font-weight:700;
         font-family:'Outfit',sans-serif; cursor:pointer;
         box-shadow: 0 4px 20px rgba(14,165,233,0.35);
         transition: all 0.2s;
-      ">🔗 Conectar con Google</button>
+      ">🔗 Cargar datos</button>
       <div style="margin-top:16px; font-size:11px; color:var(--text3); font-family:'JetBrains Mono',monospace;">
-        BD: Google Sheets · Finanzas_BD
+        BD: Firebase Firestore
       </div>
     </div>
   </div>
@@ -350,7 +347,6 @@
 
   <!-- ==================== ANÁLISIS ==================== -->
   <div id="tab-analisis" class="section">
-
     <div class="card" style="background:linear-gradient(135deg,rgba(16,185,129,0.06),rgba(14,165,233,0.04));border-color:rgba(16,185,129,0.22);margin-bottom:14px;">
       <p class="section-title" style="color:var(--success);">🗓️ Día de libertad financiera</p>
       <div id="libertad-detail"></div>
@@ -386,7 +382,6 @@
       <div id="chart-proyeccion" style="overflow-x:auto;"></div>
       <div id="chart-proj-leyenda" style="display:flex;flex-wrap:wrap;gap:10px;margin-top:12px;"></div>
     </div>
-
   </div>
 
   <!-- ==================== ESTRATEGIA ==================== -->
@@ -482,7 +477,7 @@
       </div>
       <div class="input-group">
         <label>Fecha de vencimiento (última cuota)</label>
-        <input type="month" id="deu-fechafin" placeholder="YYYY-MM"
+        <input type="month" id="deu-fechafin"
           style="background:var(--bg2);border:1.5px solid var(--border);border-radius:9px;color:var(--text);font-family:'Outfit',sans-serif;font-size:13px;font-weight:500;padding:9px 12px;width:100%;"/>
       </div>
     </div>
@@ -596,22 +591,24 @@
 <div class="toast" id="toast"></div>
 
 <!-- ==================== SCRIPTS ==================== -->
-<!-- 1. Constantes y estado (sin dependencias) -->
+<!-- 1. Constantes y estado -->
 <script src="js/data/constants.js"></script>
 <script src="js/data/state.js"></script>
 
-<!-- 2. Utilidades puras (dependen de constantes/estado) -->
+<!-- 2. Utilidades -->
 <script src="js/modules/utils/helpers.js"></script>
 
-<!-- 3. UI base (depende de estado y helpers) -->
+<!-- 3. UI base -->
 <script src="js/modules/ui/ui.js"></script>
 <script src="js/modules/ui/charts.js"></script>
 
-<!-- 4. Servicios de negocio (dependen de estado y helpers) -->
+<!-- 4. Lógica financiera -->
 <script src="js/modules/services/financiero.js"></script>
-<script src="js/modules/services/sheets.js"></script>
 
-<!-- 5. Componentes de la UI (dependen de todo lo anterior) -->
+<!-- 5. Firebase (módulo ES) -->
+<script type="module" src="js/modules/services/firebase.js"></script>
+
+<!-- 6. Componentes -->
 <script src="js/modules/components/resumen.js"></script>
 <script src="js/modules/components/sueldos.js"></script>
 <script src="js/modules/components/deudas.js"></script>
@@ -622,7 +619,7 @@
 <script src="js/modules/components/analisis.js"></script>
 <script src="js/modules/components/estrategia.js"></script>
 
-<!-- 6. Punto de entrada (inicialización) -->
+<!-- 7. Inicialización -->
 <script src="js/main.js"></script>
 
 </body>
