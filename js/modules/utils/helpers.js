@@ -57,16 +57,11 @@ function mesesATexto(m) {
 function parsearMonto(valor) {
   if (valor === undefined || valor === null || valor === '') return 0;
   if (typeof valor === 'number') return valor;
-
-  let s = String(valor).trim().replace('$', '').replace(/\s/g, '');
-
-  const partes = s.split('.');
-  if (partes.length > 1 && partes[partes.length - 1].length === 3) {
-    // Separador de miles tipo "800.000"
-    s = s.replace(/\./g, '');
-  }
-
-  s = s.replace(',', '.');
+  let s = String(valor).trim()
+    .replace(/\$/g, '')
+    .replace(/\s/g, '')
+    .replace(/\./g, '')
+    .replace(',', '.');
   return parseFloat(s) || 0;
 }
 

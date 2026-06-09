@@ -33,7 +33,7 @@ function gsLogin() {
 // ── Lectura de rangos ─────────────────────────────────────────────
 
 async function gsGetRange(range) {
-  const url = `https://sheets.googleapis.com/v4/spreadsheets/${GS_SHEET_ID}/values/${encodeURIComponent(range)}?valueRenderOption=UNFORMATTED_VALUE`;
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${GS_SHEET_ID}/values/${encodeURIComponent(range)}?valueRenderOption=FORMATTED_VALUE`;
   const res  = await fetch(url, { headers: { Authorization: 'Bearer ' + gsToken } });
   const data = await res.json();
   return data.values || [];
@@ -44,10 +44,10 @@ async function gsGetRange(range) {
 async function cargarDesdeSheets() {
   try {
     const [rowsS, rowsD, rowsG, rowsA] = await Promise.all([
-      gsGetRange('Sueldos!A2:F200'),
-gsGetRange('Deudas!A2:J200'),
-gsGetRange('Gastos!A2:I2000'),
-gsGetRange('Abonos!A2:H2000'),
+      gsGetRange('Sueldos!A1:F200'),
+      gsGetRange('Deudas!A1:J200'),
+      gsGetRange('Gastos!A1:I2000'),
+      gsGetRange('Abonos!A1:H2000'),
     ]);
 
     sueldos        = _procesarSueldos(rowsS);
@@ -56,7 +56,6 @@ gsGetRange('Abonos!A2:H2000'),
     abonoHistorial = _procesarAbonos(rowsA);
 
     _sincronizarContadorIds();
-
     actualizarTodo();
 
     const bv = document.getElementById('bienvenida-screen');
@@ -72,7 +71,7 @@ gsGetRange('Abonos!A2:H2000'),
 
 function _procesarSueldos(rows) {
   const resultado = [];
-  rows.forEach(row => {
+  rows.slice(1).forEach(row => {
     if (!row || row.length < 2) return;
     const nombre = row[1], activo = String(row[4] || 'SI').toUpperCase();
     if (nombre && activo === 'SI') {
@@ -89,7 +88,7 @@ function _procesarSueldos(rows) {
 
 function _procesarDeudas(rows) {
   const resultado = [];
-  rows.forEach(row => {
+  rows.slice(1).forEach(row => {
     if (!row || row.length < 2) return;
     const nombre = row[1];
     if (!nombre) return;
@@ -113,7 +112,7 @@ function _procesarDeudas(rows) {
 
 function _procesarGastos(rows) {
   const resultado = {};
-  rows.forEach(row => {
+  rows.slice(1).forEach(row => {
     if (!row || row.length < 3) return;
     const mes = String(row[1] || '').trim(), concepto = row[2] || '';
     if (!mes || !concepto) return;
@@ -133,7 +132,7 @@ function _procesarGastos(rows) {
 
 function _procesarAbonos(rows) {
   const resultado = [];
-  rows.forEach(row => {
+  rows.slice(1).forEach(row => {
     if (!row || row.length < 5) return;
     const monto = parsearMonto(row[5]);
     if (monto > 0) {
