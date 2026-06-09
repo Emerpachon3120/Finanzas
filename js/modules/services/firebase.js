@@ -132,3 +132,18 @@ async function fbGuardarDeuda(d) {
 async function fbEliminarDeuda(id) {
   await db.collection('deudas').doc(String(id)).delete();
 }
+async function fbGuardarAbono(a) {
+  await db.collection('abonos').doc(String(a.id)).set(a);
+}
+
+async function fbEliminarAbono(id) {
+  await db.collection('abonos').doc(String(id)).delete();
+}
+
+async function fbGuardarGasto(g) {
+  await db.collection('gastos').doc(String(g.id)).set(g);
+}
+
+async function fbEliminarGasto(id) {
+  await db.collection('gastos').doc(String(id)).delete();
+}

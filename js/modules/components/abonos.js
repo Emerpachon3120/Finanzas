@@ -89,32 +89,40 @@ function calcularAbono() {
       <div class="metric"><div class="metric-label">Cuotas nuevas</div><div class="metric-value green">${cuotasNuevas}</div></div>`;
   }
 }
-
 function aplicarAbono() {
-  const sel  = document.getElementById('abono-select');
-  const id   = parseInt(sel.value);
-  const d    = deudas.find(x => x.id === id);
+  const sel   = document.getElementById('abono-select');
+  const id    = parseInt(sel.value);
+  const d     = deudas.find(x => x.id === id);
   const monto = parseFloat(document.getElementById('abono-monto').value) || 0;
   const tipo  = document.getElementById('abono-tipo').value;
   if (!monto || !d) return;
 
   if (tipo === 'total') {
     if (monto >= d.saldo) {
-      abonoHistorial.unshift({ id: g(), deudaNombre: d.nombre, monto: d.saldo, tipo: 'Pago total', fecha: new Date().toLocaleDateString('es-CO'), ts: Date.now() });
+      const abono = { id: g(), deudaNombre: d.nombre, monto: d.saldo, tipo: 'Pago total', fecha: new Date().toLocaleDateString('es-CO'), ts: Date.now() };
+      abonoHistorial.unshift(abono);
       d.pagada = true; d.saldo = 0; d.cuotas = 0;
+      fbGuardarDeuda(d);
+      fbGuardarAbono(abono);
       showToast(`🎉 ¡${d.nombre} PAGADA COMPLETAMENTE!`, 'success');
       populateAbonoSelect();
       renderDeudas();
     } else {
-      abonoHistorial.unshift({ id: g(), deudaNombre: d.nombre, monto, tipo: 'Abono parcial', fecha: new Date().toLocaleDateString('es-CO'), ts: Date.now() });
+      const abono = { id: g(), deudaNombre: d.nombre, monto, tipo: 'Abono parcial', fecha: new Date().toLocaleDateString('es-CO'), ts: Date.now() };
+      abonoHistorial.unshift(abono);
       d.saldo -= monto;
+      fbGuardarDeuda(d);
+      fbGuardarAbono(abono);
       showToast(`Abono de ${fmt(monto)} aplicado ✓`, 'success');
       renderAbonoSimulator();
     }
   } else {
     const nuevoSaldo = Math.max(0, d.saldo - monto);
-    abonoHistorial.unshift({ id: g(), deudaNombre: d.nombre, monto, tipo: 'Abono a capital', fecha: new Date().toLocaleDateString('es-CO'), ts: Date.now() });
+    const abono = { id: g(), deudaNombre: d.nombre, monto, tipo: 'Abono a capital', fecha: new Date().toLocaleDateString('es-CO'), ts: Date.now() };
+    abonoHistorial.unshift(abono);
     d.saldo = nuevoSaldo;
+    fbGuardarDeuda(d);
+    fbGuardarAbono(abono);
     if (nuevoSaldo === 0) { d.pagada = true; d.cuotas = 0; showToast(`🎉 ¡${d.nombre} liquidada!`, 'success'); }
     else { showToast(`Abono a capital de ${fmt(monto)} aplicado ✓`, 'success'); }
     renderAbonoSimulator();
@@ -150,6 +158,7 @@ function renderAbonoHistorial() {
 
 function deleteAbono(id) {
   abonoHistorial = abonoHistorial.filter(a => a.id !== id);
+  fbEliminarAbono(id);
   renderAbonoHistorial();
   showToast('Abono eliminado del historial');
 }

@@ -1,9 +1,6 @@
 /* =====================================================================
    js/modules/components/gastos.js — Gestión de gastos mensuales
-   Agregar, editar, eliminar gastos; filtros, búsqueda y ordenamiento.
    ===================================================================== */
-
-// ── Filtros ───────────────────────────────────────────────────────
 
 function setGastoFilter(type, val, el) {
   if (type === 'cat') {
@@ -36,13 +33,9 @@ function sortGastos(field) {
   renderGastos();
 }
 
-// ── Acceso a los gastos del mes actual ────────────────────────────
-
 function getGastosActuales() {
   return gastosPorMes[mkKey(mesActual)] || [];
 }
-
-// ── Renderizado ───────────────────────────────────────────────────
 
 function renderGastos() {
   const key = mkKey(mesActual);
@@ -52,12 +45,10 @@ function renderGastos() {
   const search = (document.getElementById('gasto-search')?.value || '').toLowerCase();
   const sort   = document.getElementById('gastos-sort')?.value || 'fecha-desc';
 
-  // Aplicar filtros
   if (gastoFilterCat    !== 'todas') gastos = gastos.filter(g => g.categoria === gastoFilterCat);
   if (gastoFilterFuente !== 'todas') gastos = gastos.filter(g => g.fuente === gastoFilterFuente);
   if (search) gastos = gastos.filter(g => g.concepto.toLowerCase().includes(search) || (g.nota || '').toLowerCase().includes(search));
 
-  // Aplicar ordenamiento
   if (gSortField) {
     gastos.sort((a, b) => {
       let va = a[gSortField], vb = b[gSortField];
@@ -73,7 +64,6 @@ function renderGastos() {
     else if (sort === 'cat')        gastos.sort((a, b) => a.categoria.localeCompare(b.categoria));
   }
 
-  // Actualizar métricas
   const allGastos  = getGastosActuales();
   const total      = allGastos.reduce((a, g) => a + g.monto, 0);
   const ti         = totalIngresos();
@@ -87,7 +77,6 @@ function renderGastos() {
   document.getElementById('pct-usado').textContent = pct + '%';
   document.getElementById('num-gastos').textContent = allGastos.length;
 
-  // Barra de categorías
   const catTotals = {};
   allGastos.forEach(g => { catTotals[g.categoria] = (catTotals[g.categoria] || 0) + g.monto; });
   const barEl = document.getElementById('cat-bar');
@@ -100,7 +89,6 @@ function renderGastos() {
     legEl.innerHTML += `<span class="legend-item"><span class="legend-dot" style="background:${col};"></span>${cat} ${fmt(val)}</span>`;
   });
 
-  // Tabla de gastos
   const tbody = document.getElementById('gastos-body');
   tbody.innerHTML = '';
   if (!gastos.length) {
@@ -123,16 +111,12 @@ function renderGastos() {
   });
 }
 
-// ── Navegación de meses ───────────────────────────────────────────
-
 function cambiarMes(dir) {
   mesActual.month += dir;
   if (mesActual.month > 11) { mesActual.month = 0; mesActual.year++; }
   if (mesActual.month < 0)  { mesActual.month = 11; mesActual.year--; }
   renderGastos();
 }
-
-// ── CRUD ──────────────────────────────────────────────────────────
 
 function agregarGasto() {
   const c    = document.getElementById('g-concepto').value.trim();
@@ -142,9 +126,11 @@ function agregarGasto() {
   const nota = document.getElementById('g-nota').value.trim();
   if (!c || !m) { showToast('Completa concepto y monto', 'danger'); return; }
 
-  const key = mkKey(mesActual);
+  const key    = mkKey(mesActual);
   if (!gastosPorMes[key]) gastosPorMes[key] = [];
-  gastosPorMes[key].push({ id: g(), concepto: c, monto: m, categoria: cat, fuente: fue, nota, ts: Date.now() });
+  const nuevo = { id: g(), concepto: c, monto: m, categoria: cat, fuente: fue, nota, ts: Date.now(), mes: key };
+  gastosPorMes[key].push(nuevo);
+  fbGuardarGasto(nuevo);
 
   document.getElementById('g-concepto').value = '';
   document.getElementById('g-monto').value    = '';
@@ -156,6 +142,7 @@ function agregarGasto() {
 function deleteGasto(id) {
   const key = mkKey(mesActual);
   gastosPorMes[key] = (gastosPorMes[key] || []).filter(g => g.id !== id);
+  fbEliminarGasto(id);
   renderGastos();
   showToast('Gasto eliminado', 'danger');
 }
@@ -192,12 +179,11 @@ function saveGastoEdit() {
   gasto.categoria = document.getElementById('eg-categoria').value;
   gasto.fuente    = document.getElementById('eg-fuente').value;
   gasto.nota      = document.getElementById('eg-nota').value.trim();
+  fbGuardarGasto(gasto);
   closeGastoEditModal();
   renderGastos();
   showToast('Gasto actualizado ✓', 'success');
 }
-
-// ── Modal: Pagar cuota de deuda ───────────────────────────────────
 
 function openPagarCuotaModal() {
   const sel = document.getElementById('pc-deuda');
@@ -253,26 +239,29 @@ function confirmarPagarCuota() {
 
   const fuente = document.getElementById('pc-fuente-pago').value;
   const nota   = document.getElementById('pc-nota').value.trim() || ('Cuota deuda: ' + d.nombre);
+  const key    = mkKey(mesActual);
 
   if (d.cuotas > 0) d.cuotas -= 1;
   d.saldo -= d.cuota;
   if (d.saldo <= 0) { d.saldo = 0; d.pagada = true; }
+  fbGuardarDeuda(d);
 
-  const key = mkKey(mesActual);
   if (!gastosPorMes[key]) gastosPorMes[key] = [];
-  gastosPorMes[key].push({
+  const nuevoGasto = {
     id:        g(),
     concepto:  'Cuota: ' + d.nombre,
     monto:     d.cuota,
     categoria: 'Deudas',
     fuente,
     nota,
-    ts: Date.now(),
-  });
+    ts:        Date.now(),
+    mes:       key,
+  };
+  gastosPorMes[key].push(nuevoGasto);
+  fbGuardarGasto(nuevoGasto);
 
   closePagarCuotaModal();
   renderDeudas();
   renderGastos();
-  if (typeof actualizarMetricas === 'function') actualizarMetricas();
   showToast(`Cuota de "${d.nombre}" descontada del saldo y registrada ✓`, 'success');
 }
