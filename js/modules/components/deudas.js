@@ -178,7 +178,7 @@ function _ejecutarLiquidacion(d) {
 
   if (!gastosPorMes[mesClave]) gastosPorMes[mesClave] = [];
   gastosPorMes[mesClave].push({
-    id:        Date.now(),
+    id:        g(),
     concepto:  `Liquidación total: ${d.nombre}`,
     monto:     montoFinal,
     categoria: 'Deudas',
@@ -188,7 +188,7 @@ function _ejecutarLiquidacion(d) {
   });
 
   abonoHistorial.push({
-    id:          Date.now() + 1,
+    id:          g(),
     fecha:       new Date().toLocaleDateString(),
     deudaId:     d.id,
     deudaNombre: d.nombre,

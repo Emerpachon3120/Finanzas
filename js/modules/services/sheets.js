@@ -55,6 +55,10 @@ async function cargarDesdeSheets() {
     gastosPorMes  = _procesarGastos(rowsG);
     abonoHistorial = _procesarAbonos(rowsA);
 
+    // Sincronizar el contador de IDs para que nunca colisione
+    // con los IDs que ya existen en Sheets
+    _sincronizarContadorIds();
+
     actualizarTodo();
 
     const bv = document.getElementById('bienvenida-screen');
@@ -75,7 +79,7 @@ function _procesarSueldos(rows) {
     const nombre = row[1], activo = String(row[4] || 'SI').toUpperCase();
     if (nombre && activo === 'SI') {
       resultado.push({
-        id:     parseInt(row[0]) || Date.now(),
+        id:     parseInt(row[0]) || g(),
         nombre,
         monto:  parsearMonto(row[2]),
         tipo:   (row[3] || 'fijo').toLowerCase(),
@@ -94,7 +98,7 @@ function _procesarDeudas(rows) {
     const tasa   = parsearMonto(row[5]);
     const badge  = tasa >= 40 ? 'danger' : tasa >= 20 ? 'warning' : tasa > 0 ? 'info' : 'success';
     resultado.push({
-      id:       parseInt(row[0]) || Date.now(),
+      id:       parseInt(row[0]) || g(),
       nombre,
       cuota:    parsearMonto(row[2]),
       saldo:    parsearMonto(row[3]),
@@ -117,7 +121,7 @@ function _procesarGastos(rows) {
     if (!mes || !concepto) return;
     if (!resultado[mes]) resultado[mes] = [];
     resultado[mes].push({
-      id:        parseInt(row[0]) || Date.now(),
+      id:        parseInt(row[0]) || g(),
       concepto,
       monto:     parsearMonto(row[5]),
       categoria: row[3] || 'Otro',
@@ -136,7 +140,7 @@ function _procesarAbonos(rows) {
     const monto = parsearMonto(row[5]);
     if (monto > 0) {
       resultado.push({
-        id:           parseInt(row[0]) || Date.now(),
+        id:           parseInt(row[0]) || g(),
         fecha:        row[1] || '',
         deudaId:      parseInt(row[2]) || 0,
         deudaNombre:  row[3] || '',
@@ -147,6 +151,25 @@ function _procesarAbonos(rows) {
     }
   });
   return resultado;
+}
+
+/**
+ * Después de cargar datos desde Sheets, avanza el contador nextId
+ * hasta ser mayor que cualquier ID existente. Así los registros nuevos
+ * nunca colisionan con los que ya vienen de la base de datos.
+ */
+function _sincronizarContadorIds() {
+  const todosLosIds = [
+    ...sueldos.map(x => x.id),
+    ...deudas.map(x => x.id),
+    ...abonoHistorial.map(x => x.id),
+    ...Object.values(gastosPorMes).flat().map(x => x.id),
+  ].filter(id => typeof id === 'number' && isFinite(id));
+
+  if (todosLosIds.length > 0) {
+    const maxId = Math.max(...todosLosIds);
+    if (maxId >= nextId) nextId = maxId + 1;
+  }
 }
 
 // ── Escritura en Sheets ───────────────────────────────────────────
