@@ -140,7 +140,7 @@ function renderAbonoHistorial() {
     <tbody>
     ${abonoHistorial.map(a => `<tr>
       <td style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text3);">${a.fecha}</td>
-      <td style="font-weight:700;color:var(--text);">${a.deuda}</td>
+      <td style="font-weight:700;color:var(--text);">${a.deudaNombre}</td>
       <td><span class="badge badge-${a.tipo === 'Pago total' ? 'success' : a.tipo === 'Abono a capital' ? 'info' : 'warning'}">${a.tipo}</span></td>
       <td style="font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--success);">${fmt(a.monto)}</td>
       <td><button class="btn-delete" onclick="deleteAbono(${a.id})">×</button></td>
