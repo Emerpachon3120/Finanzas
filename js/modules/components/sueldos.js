@@ -77,9 +77,12 @@ function saveSalary() {
   if (editingSalaryId) {
     const s = sueldos.find(x => x.id === editingSalaryId);
     s.nombre = nombre; s.monto = monto; s.tipo = tipo;
+    fbGuardarSueldo(s);
     showToast('Fuente de ingreso actualizada ✓', 'success');
   } else {
-    sueldos.push({ id: g(), nombre, monto, tipo });
+    const nuevo = { id: g(), nombre, monto, tipo };
+    sueldos.push(nuevo);
+    fbGuardarSueldo(nuevo);
     showToast('Fuente de ingreso agregada ✓', 'success');
   }
   closeSalaryModal();
@@ -95,6 +98,7 @@ function deleteSalary(id) {
     'Eliminar', 'btn-danger',
     () => {
       sueldos = sueldos.filter(s => s.id !== id);
+      fbEliminarSueldo(id);
       populateFuenteSelects();
       renderSueldos();
       showToast('Fuente eliminada', 'danger');

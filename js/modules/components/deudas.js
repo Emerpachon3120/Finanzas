@@ -121,9 +121,12 @@ function saveDebt() {
   if (editingDebtId) {
     const d = deudas.find(x => x.id === editingDebtId);
     Object.assign(d, { nombre, cuota, saldo, cuotas, tasa, badge, fuente, fechaFin });
+    fbGuardarDeuda(d);
     showToast('Deuda actualizada ✓', 'success');
   } else {
-    deudas.push({ id: g(), nombre, cuota, saldo, cuotas, tasa, badge, fuente, fechaFin, pagada: false });
+    const nueva = { id: g(), nombre, cuota, saldo, cuotas, tasa, badge, fuente, fechaFin, pagada: false };
+    deudas.push(nueva);
+    fbGuardarDeuda(nueva);
     showToast('Deuda agregada ✓', 'success');
   }
   closeDebtModal();
@@ -136,6 +139,7 @@ function deleteDebt(id) {
   const d = deudas.find(x => x.id === id);
   openConfirm('¿Eliminar deuda?', `"${d.nombre}" será eliminada permanentemente.`, 'Eliminar', 'btn-danger', () => {
     deudas = deudas.filter(x => x.id !== id);
+    fbEliminarDeuda(id);
     renderDeudas();
     populateAmortSelect();
     populateAbonoSelect();
@@ -151,6 +155,7 @@ function marcarPagada(id) {
     '¡Pagada! 🎉', 'btn-success',
     () => {
       d.pagada = true; d.saldo = 0; d.cuotas = 0;
+      fbGuardarDeuda(d);
       renderDeudas();
       renderResumen();
       populateAbonoSelect();
@@ -196,9 +201,8 @@ function _ejecutarLiquidacion(d) {
     monto:       montoFinal,
     nota:        'Cierre definitivo',
   });
-
-  d.saldo = 0; d.cuotas = 0; d.pagada = true;
-
-  actualizarTodo();
-  showToast(`🎊 "${d.nombre}" ha sido liquidada con éxito`, 'success');
+d.saldo = 0; d.cuotas = 0; d.pagada = true;
+fbGuardarDeuda(d);
+actualizarTodo();
+showToast(`🎊 "${d.nombre}" ha sido liquidada con éxito`, 'success');
 }

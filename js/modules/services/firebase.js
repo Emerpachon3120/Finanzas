@@ -114,3 +114,21 @@ function _sincronizarContadorIds() {
     if (maxId >= nextId) nextId = maxId + 1;
   }
 }
+
+// ── Operaciones individuales ──────────────────────────────────────
+
+async function fbGuardarSueldo(s) {
+  await db.collection('sueldos').doc(String(s.id)).set(s);
+}
+
+async function fbEliminarSueldo(id) {
+  await db.collection('sueldos').doc(String(id)).delete();
+}
+
+async function fbGuardarDeuda(d) {
+  await db.collection('deudas').doc(String(d.id)).set(d);
+}
+
+async function fbEliminarDeuda(id) {
+  await db.collection('deudas').doc(String(id)).delete();
+}
