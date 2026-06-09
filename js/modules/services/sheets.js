@@ -74,7 +74,7 @@ async function cargarDesdeSheets() {
 
 function _procesarSueldos(rows) {
   const resultado = [];
-  rows.forEach(row => {
+  rows.slice(1).forEach(row => {
     if (!row || row.length < 2) return;
     const nombre = row[1], activo = String(row[4] || 'SI').toUpperCase();
     if (nombre && activo === 'SI') {
@@ -91,7 +91,7 @@ function _procesarSueldos(rows) {
 
 function _procesarDeudas(rows) {
   const resultado = [];
-  rows.forEach(row => {
+  rows.slice(1).forEach(row => {
     if (!row || row.length < 2) return;
     const nombre = row[1];
     if (!nombre) return;
@@ -115,7 +115,7 @@ function _procesarDeudas(rows) {
 
 function _procesarGastos(rows) {
   const resultado = {};
-  rows.forEach(row => {
+  rows.slice(1).forEach(row => {
     if (!row || row.length < 3) return;
     const mes = String(row[1] || '').trim(), concepto = row[2] || '';
     if (!mes || !concepto) return;
@@ -135,7 +135,7 @@ function _procesarGastos(rows) {
 
 function _procesarAbonos(rows) {
   const resultado = [];
-  rows.forEach(row => {
+  rows.slice(1).forEach(row => {
     if (!row || row.length < 5) return;
     const monto = parsearMonto(row[5]);
     if (monto > 0) {
