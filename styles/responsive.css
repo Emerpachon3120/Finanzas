@@ -1,0 +1,26 @@
+/* =====================================================================
+   RESPONSIVE.CSS — Media queries y ajustes para pantallas pequeñas
+   ===================================================================== */
+
+@media (max-width: 600px) {
+  .two-col {
+    grid-template-columns: 1fr;
+  }
+
+  /* Ocultar columnas intermedias de la tabla de deudas en móvil */
+  .debt-header,
+  .debt-row {
+    grid-template-columns: 2fr 1fr 1fr 100px;
+  }
+  .debt-header span:nth-child(4),
+  .debt-header span:nth-child(5),
+  .debt-header span:nth-child(6),
+  .debt-row span:nth-child(4),
+  .debt-row span:nth-child(5),
+  .debt-row span:nth-child(6) {
+    display: none;
+  }
+
+  .metric-value { font-size: 17px; }
+  .tab { min-width: 60px; font-size: 11px; }
+}

@@ -1,0 +1,75 @@
+/* =====================================================================
+   js/modules/utils/helpers.js — Funciones utilitarias puras
+   Sin efectos secundarios. No tocan el DOM ni el estado.
+   ===================================================================== */
+
+/** Genera un ID autoincremental único */
+function g() { return ++nextId; }
+
+/** Construye la clave de mes a partir de un objeto {year, month} */
+function mkKey(m) {
+  return m.year + '-' + String(m.month + 1).padStart(2, '0');
+}
+
+/** Formatea un número como moneda COP */
+function fmt(v) {
+  return '$' + Math.round(v).toLocaleString('es-CO');
+}
+
+/** Formatea una clave "YYYY-MM" como "Enero 2025" */
+function fmtKey(k) {
+  const parts = k.split('-');
+  return MESES[parseInt(parts[1]) - 1] + ' ' + parts[0];
+}
+
+/**
+ * Devuelve un color hex según la tasa de interés.
+ * ≥40% → rojo | ≥20% → naranja | ≥10% → azul | <10% → verde
+ */
+function pctColor(t) {
+  if (t >= 40) return '#ef4444';
+  if (t >= 20) return '#f59e0b';
+  if (t >= 10) return '#0ea5e9';
+  return '#10b981';
+}
+
+/** Convierte meses a texto legible: "1a 3m" o "5 meses" */
+function mesesATexto(m) {
+  return m >= 12
+    ? `${Math.floor(m / 12)}a ${m % 12}m`
+    : `${m} mes${m !== 1 ? 'es' : ''}`;
+}
+
+/**
+ * Limpia y parsea un valor monetario con formatos mixtos.
+ * Maneja: "$800.000", "1.500.000", "10.50", "1500000"
+ */
+function parsearMonto(valor) {
+  if (valor === undefined || valor === null || valor === '') return 0;
+  if (typeof valor === 'number') return valor;
+
+  let s = String(valor).trim().replace('$', '').replace(/\s/g, '');
+
+  const partes = s.split('.');
+  if (partes.length > 1 && partes[partes.length - 1].length === 3) {
+    // Separador de miles tipo "800.000"
+    s = s.replace(/\./g, '');
+  }
+
+  s = s.replace(',', '.');
+  return parseFloat(s) || 0;
+}
+
+// ── Agregaciones sobre el estado ─────────────────────────────────
+
+/** Suma de todos los ingresos activos */
+function totalIngresos() {
+  return sueldos.reduce((a, s) => a + s.monto, 0);
+}
+
+/** Suma de las cuotas de deudas activas (no pagadas) */
+function totalCuotaActiva() {
+  return deudas
+    .filter(d => !d.pagada)
+    .reduce((a, d) => a + d.cuota, 0);
+}

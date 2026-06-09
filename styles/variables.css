@@ -1,0 +1,35 @@
+/* =====================================================================
+   VARIABLES.CSS — Design tokens del sistema
+   ===================================================================== */
+:root {
+  /* Fondos */
+  --bg: #ffffff;
+  --bg2: #f8f9fb;
+  --bg3: #f0f2f5;
+  --bg4: #e8edf3;
+
+  /* Bordes */
+  --border: #e2e8f0;
+  --border2: #cbd5e1;
+
+  /* Texto */
+  --text: #0f172a;
+  --text2: #475569;
+  --text3: #94a3b8;
+
+  /* Colores semánticos */
+  --accent: #0ea5e9;
+  --accent2: #6366f1;
+  --danger: #ef4444;
+  --warning: #f59e0b;
+  --success: #10b981;
+  --info: #0ea5e9;
+  --purple: #8b5cf6;
+
+  /* Fondos semánticos (tintados) */
+  --red-bg: rgba(239, 68, 68, 0.07);
+  --green-bg: rgba(16, 185, 129, 0.07);
+  --blue-bg: rgba(14, 165, 233, 0.07);
+  --warn-bg: rgba(245, 158, 11, 0.07);
+  --purple-bg: rgba(139, 92, 246, 0.07);
+}
