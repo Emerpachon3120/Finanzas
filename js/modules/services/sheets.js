@@ -44,10 +44,10 @@ async function gsGetRange(range) {
 async function cargarDesdeSheets() {
   try {
     const [rowsS, rowsD, rowsG, rowsA] = await Promise.all([
-      gsGetRange('Sueldos!B2:G200'),
-      gsGetRange('Deudas!B2:K200'),
-      gsGetRange('Gastos!B2:J2000'),
-      gsGetRange('Abonos!B2:I2000'),
+      gsGetRange('Sueldos!A2:F200'),
+gsGetRange('Deudas!A2:J200'),
+gsGetRange('Gastos!A2:I2000'),
+gsGetRange('Abonos!A2:H2000'),
     ]);
 
     sueldos        = _procesarSueldos(rowsS);
@@ -171,13 +171,13 @@ async function gsClearAndWrite(sheetName, rows) {
   const base = `https://sheets.googleapis.com/v4/spreadsheets/${GS_SHEET_ID}`;
   const hdrs = { 'Content-Type': 'application/json', Authorization: 'Bearer ' + gsToken };
 
-  await fetch(`${base}/values/${encodeURIComponent(sheetName + '!B2:Z5000')}:clear`, {
+  await fetch(`${base}/values/${encodeURIComponent(sheetName + '!A2:Z5000')}:clear`, {
     method: 'POST', headers: hdrs
   });
 
   if (!rows.length) return;
 
-  await fetch(`${base}/values/${encodeURIComponent(sheetName + '!B2')}?valueInputOption=RAW`, {
+  await fetch(`${base}/values/${encodeURIComponent(sheetName + '!A2')}?valueInputOption=RAW`, {
     method: 'PUT', headers: hdrs,
     body: JSON.stringify({ values: rows })
   });
