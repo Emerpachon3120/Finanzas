@@ -1,10 +1,6 @@
 /* =====================================================================
    js/modules/services/firebase.js — Conector con Firebase Firestore
-   Reemplaza sheets.js. Maneja lectura y escritura de datos.
    ===================================================================== */
-
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
-import { getFirestore, collection, getDocs, setDoc, deleteDoc, doc, writeBatch } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey:            "AIzaSyBqJZzlswDFjhY1A6XET1kdsRAR1tDSX9g",
@@ -15,25 +11,23 @@ const firebaseConfig = {
   appId:             "1:804309758824:web:45715418a83e09dd6ddcdd"
 };
 
-const app = initializeApp(firebaseConfig);
-const db  = getFirestore(app);
-
-// ── Carga de datos ────────────────────────────────────────────────
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
 
 async function cargarDesdeFirebase() {
   try {
     showToast('🔗 Cargando datos...', 'info');
 
     const [snapS, snapD, snapG, snapA] = await Promise.all([
-      getDocs(collection(db, 'sueldos')),
-      getDocs(collection(db, 'deudas')),
-      getDocs(collection(db, 'gastos')),
-      getDocs(collection(db, 'abonos')),
+      db.collection('sueldos').get(),
+      db.collection('deudas').get(),
+      db.collection('gastos').get(),
+      db.collection('abonos').get(),
     ]);
 
-    sueldos = snapS.docs.map(d => ({ ...d.data() }));
+    sueldos = snapS.docs.map(d => d.data());
 
-    deudas  = snapD.docs.map(d => {
+    deudas = snapD.docs.map(d => {
       const data = d.data();
       const tasa = data.tasa || 0;
       return {
@@ -50,7 +44,7 @@ async function cargarDesdeFirebase() {
       gastosPorMes[mes].push(data);
     });
 
-    abonoHistorial = snapA.docs.map(d => ({ ...d.data() }))
+    abonoHistorial = snapA.docs.map(d => d.data())
       .sort((a, b) => (b.ts || 0) - (a.ts || 0));
 
     _sincronizarContadorIds();
@@ -59,11 +53,9 @@ async function cargarDesdeFirebase() {
     const bv = document.getElementById('bienvenida-screen');
     if (bv) bv.style.display = 'none';
 
-    // Mostrar botón guardar
     const btnSave = document.getElementById('btn-gsave');
     if (btnSave) btnSave.style.display = '';
 
-    // Actualizar botón conectar
     const btnSync = document.getElementById('btn-gsync');
     if (btnSync) { btnSync.textContent = '✅ Conectado'; btnSync.disabled = true; }
 
@@ -71,46 +63,35 @@ async function cargarDesdeFirebase() {
     showToast('✅ Datos cargados correctamente', 'success');
   } catch (err) {
     console.error('[firebase]', err);
-    showToast('❌ Error al cargar datos: ' + err.message, 'danger');
+    showToast('❌ Error al cargar: ' + err.message, 'danger');
   }
 }
-
-// ── Guardado de datos ─────────────────────────────────────────────
 
 async function guardarEnFirebase() {
   try {
     showToast('☁️ Guardando...', 'info');
-    const batch = writeBatch(db);
+    const batch = db.batch();
 
-    // Sueldos
-    const snapS = await getDocs(collection(db, 'sueldos'));
+    const [snapS, snapD, snapG, snapA] = await Promise.all([
+      db.collection('sueldos').get(),
+      db.collection('deudas').get(),
+      db.collection('gastos').get(),
+      db.collection('abonos').get(),
+    ]);
+
     snapS.docs.forEach(d => batch.delete(d.ref));
-    sueldos.forEach(s => {
-      batch.set(doc(db, 'sueldos', String(s.id)), s);
-    });
+    sueldos.forEach(s => batch.set(db.collection('sueldos').doc(String(s.id)), s));
 
-    // Deudas
-    const snapD = await getDocs(collection(db, 'deudas'));
     snapD.docs.forEach(d => batch.delete(d.ref));
-    deudas.forEach(d => {
-      batch.set(doc(db, 'deudas', String(d.id)), d);
-    });
+    deudas.forEach(d => batch.set(db.collection('deudas').doc(String(d.id)), d));
 
-    // Gastos
-    const snapG = await getDocs(collection(db, 'gastos'));
     snapG.docs.forEach(d => batch.delete(d.ref));
     Object.entries(gastosPorMes).forEach(([mes, lista]) => {
-      lista.forEach(g => {
-        batch.set(doc(db, 'gastos', String(g.id)), { ...g, mes });
-      });
+      lista.forEach(g => batch.set(db.collection('gastos').doc(String(g.id)), { ...g, mes }));
     });
 
-    // Abonos
-    const snapA = await getDocs(collection(db, 'abonos'));
     snapA.docs.forEach(d => batch.delete(d.ref));
-    abonoHistorial.forEach(a => {
-      batch.set(doc(db, 'abonos', String(a.id)), { ...a, ts: a.ts || Date.now() });
-    });
+    abonoHistorial.forEach(a => batch.set(db.collection('abonos').doc(String(a.id)), { ...a, ts: a.ts || Date.now() }));
 
     await batch.commit();
     showToast('☁️ Todo guardado correctamente', 'success');
@@ -119,8 +100,6 @@ async function guardarEnFirebase() {
     showToast('❌ Error al guardar: ' + err.message, 'danger');
   }
 }
-
-// ── Sincronización de IDs ─────────────────────────────────────────
 
 function _sincronizarContadorIds() {
   const todosLosIds = [
@@ -135,5 +114,3 @@ function _sincronizarContadorIds() {
     if (maxId >= nextId) nextId = maxId + 1;
   }
 }
-window.cargarDesdeFirebase = cargarDesdeFirebase;
-window.guardarEnFirebase   = guardarEnFirebase;
