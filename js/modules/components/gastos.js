@@ -309,13 +309,16 @@ function renderFrecuentes() {
   }
 
   el.style.display = 'flex';
-  el.innerHTML = sugerencias.map(s => `
-    <button class="filter-chip" onclick="aplicarSugerencia('${s.concepto.replace(/'/g, "\\'")}', '${s.categoria}', '${s.fuente}', ${s.promedio})"
-      style="display:flex;align-items:center;gap:5px;white-space:nowrap;">
-      <span>${s.concepto}</span>
-      <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text3);">${fmt(s.promedio)}</span>
-    </button>`
-  ).join('');
+  el.innerHTML = sugerencias.map((s, i) => {
+    const colores = ['#0ea5e9','#10b981','#8b5cf6','#f59e0b','#ef4444'];
+    const col = colores[i % colores.length];
+    return `
+      <button class="filter-chip" onclick="aplicarSugerencia('${s.concepto.replace(/'/g, "\\'")}', '${s.categoria}', '${s.fuente}', ${s.promedio})"
+        style="display:flex;align-items:center;gap:6px;white-space:nowrap;background:${col}12;border-color:${col}30;color:${col};padding:6px 12px;">
+        <span style="font-weight:700;">${s.concepto}</span>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:10px;background:${col}20;padding:2px 6px;border-radius:6px;">${fmt(s.promedio)}</span>
+      </button>`;
+  }).join('');
 }
 
 function renderAutocompletado(filtro) {
