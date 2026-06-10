@@ -296,3 +296,58 @@ function getSugerenciasGastos(filtro = '') {
     .filter(s => filtro === '' || s.concepto.toLowerCase().includes(filtro.toLowerCase()))
     .sort((a, b) => b.veces - a.veces);
 }
+
+function renderFrecuentes() {
+  const sugerencias = getSugerenciasGastos().slice(0, 5);
+  const el = document.getElementById('gastos-frecuentes');
+  if (!el) return;
+
+  if (!sugerencias.length) {
+    el.style.display = 'none';
+    return;
+  }
+
+  el.style.display = 'flex';
+  el.innerHTML = sugerencias.map(s => `
+    <button class="filter-chip" onclick="aplicarSugerencia('${s.concepto.replace(/'/g, "\\'")}', '${s.categoria}', '${s.fuente}', ${s.promedio})"
+      style="display:flex;align-items:center;gap:5px;white-space:nowrap;">
+      <span>${s.concepto}</span>
+      <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text3);">${fmt(s.promedio)}</span>
+    </button>`
+  ).join('');
+}
+
+function renderAutocompletado(filtro) {
+  const el = document.getElementById('gastos-autocomplete');
+  if (!el) return;
+  if (!filtro) { el.style.display = 'none'; return; }
+
+  const sugerencias = getSugerenciasGastos(filtro).slice(0, 5);
+  if (!sugerencias.length) { el.style.display = 'none'; return; }
+
+  el.style.display = 'block';
+  el.innerHTML = sugerencias.map(s => `
+    <div onclick="aplicarSugerencia('${s.concepto.replace(/'/g, "\\'")}', '${s.categoria}', '${s.fuente}', ${s.promedio})"
+      style="padding:9px 14px;cursor:pointer;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;font-size:13px;transition:background 0.15s;"
+      onmouseover="this.style.background='var(--bg2)'" onmouseout="this.style.background=''">
+      <span style="display:flex;align-items:center;gap:8px;">
+        <span style="font-weight:600;color:var(--text);">${s.concepto}</span>
+        <span style="font-size:10px;color:var(--text3);font-family:'JetBrains Mono',monospace;">${s.categoria}</span>
+      </span>
+      <span style="display:flex;align-items:center;gap:6px;">
+        <span style="font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;color:var(--accent);">${fmt(s.promedio)}</span>
+        <span style="font-size:10px;color:var(--text3);">${s.veces}x</span>
+      </span>
+    </div>`
+  ).join('');
+}
+
+function aplicarSugerencia(concepto, categoria, fuente, monto) {
+  document.getElementById('g-concepto').value  = concepto;
+  document.getElementById('g-monto').value     = monto;
+  document.getElementById('g-categoria').value = categoria;
+  document.getElementById('g-fuente').value    = fuente;
+  document.getElementById('gastos-autocomplete').style.display = 'none';
+  document.getElementById('g-concepto').focus();
+  showToast(`💡 "${concepto}" cargado — ajusta el monto si es necesario`, 'info');
+}
