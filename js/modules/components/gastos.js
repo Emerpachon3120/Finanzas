@@ -108,6 +108,7 @@ function renderGastos() {
         <button class="btn-delete" onclick="deleteGasto(${g.id})">×</button>
       </td>
     </tr>`;
+      renderFrecuentes();
   });
 }
 
