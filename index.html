@@ -5,23 +5,19 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Finanzas Personales</title>
 
-  <!-- Fuentes -->
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@300;400;500;600&display=swap" rel="stylesheet"/>
 
-  <!-- Estilos -->
   <link rel="stylesheet" href="styles/variables.css"/>
   <link rel="stylesheet" href="styles/main.css"/>
   <link rel="stylesheet" href="styles/components.css"/>
   <link rel="stylesheet" href="styles/responsive.css"/>
 
-  <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 </head>
 <body>
 <div class="app">
 
-  <!-- ==================== HEADER ==================== -->
   <div class="header">
     <div class="header-left">
       <h1>Finanzas <span>Personales</span></h1>
@@ -29,45 +25,31 @@
     </div>
     <div class="header-badges">
       <button class="header-badge badge-green" id="btn-gsync"
-        style="cursor:pointer;border:none;font-family:inherit;font-size:inherit;font-weight:inherit;letter-spacing:inherit;"
-        onclick="cargarDesdeFirebase()">🔗 Conectar</button>
+              style="cursor:pointer;border:none;font-family:inherit;font-size:inherit;font-weight:inherit;letter-spacing:inherit;"
+              onclick="cargarDesdeFirebase()">🔗 Conectar</button>
       <div class="header-badge badge-blue" id="header-date">—</div>
       <div class="header-badge badge-green" id="header-status">● EN ORDEN</div>
     </div>
   </div>
 
-  <!-- ==================== PANTALLA DE BIENVENIDA ==================== -->
-  <div id="bienvenida-screen" style="
-    position:fixed; inset:0; z-index:9999;
-    background: var(--bg);
-    display:flex; align-items:center; justify-content:center;
-  ">
+  <div id="bienvenida-screen" style="position:fixed; inset:0; z-index:9999; background: var(--bg); display:flex; align-items:center; justify-content:center;">
     <div style="text-align:center; max-width:380px; padding:32px 24px;">
       <div style="font-size:56px; margin-bottom:16px;">📊</div>
       <div style="font-size:22px; font-weight:800; font-family:'Outfit',sans-serif; color:var(--text); margin-bottom:8px;">Finanzas Personales</div>
       <div style="font-size:13px; color:var(--text3); font-family:'Outfit',sans-serif; margin-bottom:32px; line-height:1.6;">
         Haz clic para cargar tus datos<br>desde Firebase automáticamente.
       </div>
-      <button onclick="cargarDesdeFirebase()" style="
-        background: linear-gradient(135deg, #0ea5e9, #2563eb);
-        color:#fff; border:none; border-radius:14px;
-        padding:14px 32px; font-size:15px; font-weight:700;
-        font-family:'Outfit',sans-serif; cursor:pointer;
-        box-shadow: 0 4px 20px rgba(14,165,233,0.35);
-        transition: all 0.2s;
-      ">🔗 Cargar datos</button>
-      <div style="margin-top:16px; font-size:11px; color:var(--text3); font-family:'JetBrains Mono',monospace;">
-        BD: Firebase Firestore
-      </div>
+      <button onclick="cargarDesdeFirebase()" style="background: linear-gradient(135deg, #0ea5e9, #2563eb); color:#fff; border:none; border-radius:14px; padding:14px 32px; font-size:15px; font-weight:700; font-family:'Outfit',sans-serif; cursor:pointer; box-shadow: 0 4px 20px rgba(14,165,233,0.35); transition: all 0.2s;">🔗 Cargar datos</button>
+      <div style="margin-top:16px; font-size:11px; color:var(--text3); font-family:'JetBrains Mono',monospace;">BD: Firebase Firestore</div>
     </div>
   </div>
 
-  <!-- ==================== TABS ==================== -->
   <div class="tabs">
     <button class="tab active" onclick="showTab('resumen', this)">📊 Resumen</button>
     <button class="tab" onclick="showTab('sueldos', this)">💰 Sueldos</button>
     <button class="tab" onclick="showTab('deudas', this)">📋 Deudas</button>
     <button class="tab" onclick="showTab('abonos', this)">🎯 Abonos</button>
+    <button class="tab" onclick="showTab('prestamos', this)">🤝 Préstamos</button>
     <button class="tab" onclick="showTab('amortizar', this)">📅 Amortiz.</button>
     <button class="tab" onclick="showTab('gastos', this)">✏️ Gastos</button>
     <button class="tab" onclick="showTab('historial', this)">📆 Historial</button>
@@ -75,11 +57,9 @@
     <button class="tab" onclick="showTab('estrategia', this)">💡 Estrategia</button>
   </div>
 
-  <!-- ==================== RESUMEN ==================== -->
   <div id="tab-resumen" class="section active">
     <div class="metric-grid" id="resumen-metrics"></div>
     <div class="alert-box" id="resumen-alert"></div>
-
     <div class="two-col">
       <div class="card">
         <p class="section-title">Distribución de ingresos</p>
@@ -90,20 +70,16 @@
         <div id="debt-status-summary"></div>
       </div>
     </div>
-
     <div class="card">
       <p class="section-title">Carga de deuda por tasa de interés</p>
       <div id="debt-overview"></div>
     </div>
-
-    <div class="card" id="resumen-libertad-card"
-      style="background:linear-gradient(135deg,rgba(16,185,129,0.05),rgba(14,165,233,0.04));border-color:rgba(16,185,129,0.2);">
+    <div class="card" id="resumen-libertad-card" style="background:linear-gradient(135deg,rgba(16,185,129,0.05),rgba(14,165,233,0.04));border-color:rgba(16,185,129,0.2);">
       <p class="section-title" style="color:var(--success);">🗓️ Día de libertad financiera</p>
       <div id="resumen-libertad-content"></div>
     </div>
   </div>
 
-  <!-- ==================== SUELDOS ==================== -->
   <div id="tab-sueldos" class="section">
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
       <p class="section-title" style="margin-bottom:0;">Mis fuentes de ingreso</p>
@@ -116,7 +92,6 @@
     </div>
   </div>
 
-  <!-- ==================== DEUDAS ==================== -->
   <div id="tab-deudas" class="section">
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:10px;">
       <p class="section-title" style="margin-bottom:0;">Todas tus deudas</p>
@@ -127,40 +102,29 @@
         <button class="btn-add" style="width:auto;padding:9px 18px;" onclick="openDebtModal()">+ Nueva deuda</button>
       </div>
     </div>
-
     <div class="filter-row" id="debt-filters">
       <span style="font-size:11px;color:var(--text3);font-weight:700;font-family:'JetBrains Mono',monospace;">ESTADO:</span>
       <button class="filter-chip active" onclick="setDebtFilter('todas', this)">Todas</button>
       <button class="filter-chip" onclick="setDebtFilter('activas', this)">Activas</button>
       <button class="filter-chip" onclick="setDebtFilter('pagadas', this)">Pagadas ✓</button>
     </div>
-
     <div class="card" style="padding-bottom:6px;">
       <div class="debt-table-wrap">
         <div class="debt-header">
-          <span>Concepto</span>
-          <span>Cuota/mes</span>
-          <span>Saldo</span>
-          <span>Cuotas</span>
-          <span>Tasa</span>
-          <span>Vence</span>
-          <span style="text-align:center;">Acciones</span>
+          <span>Concepto</span><span>Cuota/mes</span><span>Saldo</span><span>Cuotas</span><span>Tasa</span><span>Vence</span><span style="text-align:center;">Acciones</span>
         </div>
         <div id="debt-list"></div>
       </div>
     </div>
   </div>
 
-  <!-- ==================== ABONOS A CAPITAL ==================== -->
   <div id="tab-abonos" class="section">
     <p class="section-title" style="margin-bottom:16px;">Abonar a capital / Pagar deuda</p>
-
     <div class="abono-card">
       <p class="section-title">Seleccionar deuda</p>
       <select class="select-debt" id="abono-select" onchange="renderAbonoSimulator()"></select>
       <div class="metric-grid" id="abono-metrics"></div>
     </div>
-
     <div class="card" id="abono-simulator-card">
       <p class="section-title">Simulador de abono</p>
       <div class="input-grid" style="grid-template-columns:1fr 1fr;">
@@ -182,7 +146,6 @@
         <button class="btn-success" style="width:100%;margin-top:10px;" onclick="aplicarAbono()">✓ Aplicar abono</button>
       </div>
     </div>
-
     <div class="card">
       <p class="section-title">Historial de abonos</p>
       <div id="abono-historial-list">
@@ -191,7 +154,23 @@
     </div>
   </div>
 
-  <!-- ==================== AMORTIZACIÓN ==================== -->
+  <div id="tab-prestamos" class="section">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+      <p class="section-title" style="margin-bottom:0;">Préstamos a terceros</p>
+      <button class="btn-add" style="width:auto;padding:9px 18px;" onclick="openPrestamoModal()">+ Nuevo préstamo</button>
+    </div>
+    <div class="metric-grid" id="prestamos-metrics"></div>
+    <div class="filter-row" id="prestamo-filters" style="margin-bottom:16px;">
+      <span style="font-size:11px;color:var(--text3);font-weight:700;font-family:'JetBrains Mono',monospace;">ESTADO:</span>
+      <button class="filter-chip active" onclick="setPrestamoFilter('todos', this)">Todos</button>
+      <button class="filter-chip" onclick="setPrestamoFilter('pendientes', this)">Pendientes</button>
+      <button class="filter-chip" onclick="setPrestamoFilter('pagados', this)">Cobrados ✓</button>
+    </div>
+    <div class="card">
+      <div id="prestamos-list"></div>
+    </div>
+  </div>
+
   <div id="tab-amortizar" class="section">
     <p class="section-title" style="margin-bottom:14px;">Simulador de amortización</p>
     <select class="select-debt" id="select-debt-amort" onchange="buildAmort()"></select>
@@ -199,16 +178,13 @@
     <div class="card">
       <div class="table-scroll">
         <table class="amort-table">
-          <thead><tr>
-            <th>#</th><th>Cuota</th><th>Interés</th><th>Capital</th><th>Saldo</th>
-          </tr></thead>
+          <thead><tr><th>#</th><th>Cuota</th><th>Interés</th><th>Capital</th><th>Saldo</th></tr></thead>
           <tbody id="amort-body"></tbody>
         </table>
       </div>
     </div>
   </div>
 
-  <!-- ==================== GASTOS ==================== -->
   <div id="tab-gastos" class="section">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px;">
       <p class="section-title" style="margin-bottom:0;">Gastos del mes</p>
@@ -221,13 +197,10 @@
 
     <div class="card">
       <p class="section-title">Nuevo gasto</p>
-
-      <!-- Frecuentes -->
       <div style="margin-bottom:12px;">
         <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.1em;font-family:'JetBrains Mono',monospace;font-weight:600;margin-bottom:8px;">💡 Frecuentes</div>
         <div id="gastos-frecuentes" style="display:flex;flex-wrap:wrap;gap:6px;"></div>
       </div>
-
       <div class="input-grid">
         <div class="input-group" style="position:relative;">
           <label>Concepto</label>
@@ -242,70 +215,34 @@
           <label>Categoría</label>
           <select id="g-categoria">
             <optgroup label="🍽 Alimentación">
-              <option>Mercado</option>
-              <option>Restaurantes</option>
-              <option>Domicilios</option>
-              <option>Snacks y onces</option>
-              <option>Bebidas</option>
+              <option>Mercado</option><option>Restaurantes</option><option>Domicilios</option><option>Snacks y onces</option><option>Bebidas</option>
             </optgroup>
             <optgroup label="🏠 Vivienda">
-              <option>Arriendo</option>
-              <option>Luz</option>
-              <option>Gas</option>
-              <option>Agua</option>
-              <option>Internet y TV</option>
-              <option>Mantenimiento hogar</option>
-              <option>Mascotas</option>
+              <option>Arriendo</option><option>Luz</option><option>Gas</option><option>Agua</option><option>Internet y TV</option><option>Mantenimiento hogar</option><option>Mascotas</option>
             </optgroup>
             <optgroup label="🚗 Transporte">
-              <option>Gasolina</option>
-              <option>Transporte público</option>
-              <option>Mantenimiento vehículo</option>
-              <option>Parqueadero</option>
-              <option>Peajes</option>
+              <option>Gasolina</option><option>Transporte público</option><option>Mantenimiento vehículo</option><option>Parqueadero</option><option>Peajes</option>
             </optgroup>
             <optgroup label="💊 Salud">
-              <option>Médico y citas</option>
-              <option>Medicamentos</option>
-              <option>Gym y deporte</option>
-              <option>Óptica</option>
-              <option>Odontología</option>
+              <option>Médico y citas</option><option>Medicamentos</option><option>Gym y deporte</option><option>Óptica</option><option>Odontología</option>
             </optgroup>
             <optgroup label="📚 Educación">
-              <option>Cursos</option>
-              <option>Libros</option>
-              <option>Útiles</option>
-              <option>Matrícula</option>
-              <option>Academia hijos</option>
+              <option>Cursos</option><option>Libros</option><option>Útiles</option><option>Matrícula</option><option>Academia hijos</option>
             </optgroup>
             <optgroup label="🎬 Entretenimiento">
-              <option>Streaming</option>
-              <option>Salidas</option>
-              <option>Viajes</option>
-              <option>Cine</option>
-              <option>Juegos</option>
+              <option>Streaming</option><option>Salidas</option><option>Viajes</option><option>Cine</option><option>Juegos</option>
             </optgroup>
             <optgroup label="👤 Personal">
-              <option>Ropa y calzado</option>
-              <option>Belleza y cuidado personal</option>
-              <option>Regalos</option>
-              <option>Préstamos a otros</option>
+              <option>Ropa y calzado</option><option>Belleza y cuidado personal</option><option>Regalos</option><option>Préstamos a otros</option>
             </optgroup>
             <optgroup label="💰 Finanzas">
-              <option>Deudas</option>
-              <option>Ahorro</option>
-              <option>Seguros</option>
-              <option>Impuestos</option>
+              <option>Deudas</option><option>Ahorro</option><option>Seguros</option><option>Impuestos</option>
             </optgroup>
             <optgroup label="👨‍👩‍👧 Familia">
-              <option>Ayuda a padres</option>
-              <option>Hijos</option>
-              <option>Otros familiares</option>
+              <option>Ayuda a padres</option><option>Hijos</option><option>Otros familiares</option>
             </optgroup>
             <optgroup label="💼 Trabajo">
-              <option>Herramientas trabajo</option>
-              <option>Suscripciones trabajo</option>
-              <option>Otro</option>
+              <option>Herramientas trabajo</option><option>Suscripciones trabajo</option><option>Otro</option>
             </optgroup>
           </select>
         </div>
@@ -333,16 +270,41 @@
       <div class="metric"><div class="metric-label">N° Gastos</div><div class="metric-value" id="num-gastos">0</div></div>
     </div>
 
-    <!-- Filtros gastos -->
     <div class="filter-row" style="margin-bottom:10px;">
       <span style="font-size:11px;color:var(--text3);font-weight:700;font-family:'JetBrains Mono',monospace;">CATEGORÍA:</span>
-      <button class="filter-chip active" id="fc-todas" onclick="setGastoFilter('cat','todas',this)">Todas</button>
-      <button class="filter-chip" onclick="setGastoFilter('cat','Vivienda',this)">Vivienda</button>
-      <button class="filter-chip" onclick="setGastoFilter('cat','Alimentación',this)">Alim.</button>
-      <button class="filter-chip" onclick="setGastoFilter('cat','Servicios',this)">Servicios</button>
-      <button class="filter-chip" onclick="setGastoFilter('cat','Deudas',this)">Deudas</button>
-      <button class="filter-chip" onclick="setGastoFilter('cat','Transporte',this)">Trans.</button>
-      <button class="filter-chip" onclick="setGastoFilter('cat','Otro',this)">Otro</button>
+      <select class="filter-select" onchange="setGastoFilterSelect('cat', this.value)">
+        <option value="todas">Todas</option>
+        <optgroup label="🍽 Alimentación">
+          <option value="Mercado">Mercado</option><option value="Restaurantes">Restaurantes</option><option value="Domicilios">Domicilios</option><option value="Snacks y onces">Snacks y onces</option><option value="Bebidas">Bebidas</option>
+        </optgroup>
+        <optgroup label="🏠 Vivienda">
+          <option value="Arriendo">Arriendo</option><option value="Luz">Luz</option><option value="Gas">Gas</option><option value="Agua">Agua</option><option value="Internet y TV">Internet y TV</option><option value="Mantenimiento hogar">Mantenimiento hogar</option><option value="Mascotas">Mascotas</option>
+        </optgroup>
+        <optgroup label="🚗 Transporte">
+          <option value="Gasolina">Gasolina</option><option value="Transporte público">Transporte público</option><option value="Mantenimiento vehículo">Mantenimiento vehículo</option><option value="Parqueadero">Parqueadero</option><option value="Peajes">Peajes</option>
+        </optgroup>
+        <optgroup label="💊 Salud">
+          <option value="Médico y citas">Médico y citas</option><option value="Medicamentos">Medicamentos</option><option value="Gym y deporte">Gym y deporte</option><option value="Óptica">Óptica</option><option value="Odontología">Odontología</option>
+        </optgroup>
+        <optgroup label="📚 Educación">
+          <option value="Cursos">Cursos</option><option value="Libros">Libros</option><option value="Útiles">Útiles</option><option value="Matrícula">Matrícula</option><option value="Academia hijos">Academia hijos</option>
+        </optgroup>
+        <optgroup label="🎬 Entretenimiento">
+          <option value="Streaming">Streaming</option><option value="Salidas">Salidas</option><option value="Viajes">Viajes</option><option value="Cine">Cine</option><option value="Juegos">Juegos</option>
+        </optgroup>
+        <optgroup label="👤 Personal">
+          <option value="Ropa y calzado">Ropa y calzado</option><option value="Belleza y cuidado personal">Belleza y cuidado personal</option><option value="Regalos">Regalos</option><option value="Préstamos a otros">Préstamos a otros</option>
+        </optgroup>
+        <optgroup label="💰 Finanzas">
+          <option value="Deudas">Deudas</option><option value="Ahorro">Ahorro</option><option value="Seguros">Seguros</option><option value="Impuestos">Impuestos</option>
+        </optgroup>
+        <optgroup label="👨‍👩‍👧 Familia">
+          <option value="Ayuda a padres">Ayuda a padres</option><option value="Hijos">Hijos</option><option value="Otros familiares">Otros familiares</option>
+        </optgroup>
+        <optgroup label="💼 Trabajo">
+          <option value="Herramientas trabajo">Herramientas trabajo</option><option value="Suscripciones trabajo">Suscripciones trabajo</option><option value="Otro">Otro</option>
+        </optgroup>
+      </select>
     </div>
 
     <div class="filter-row" style="margin-bottom:10px;">
@@ -376,8 +338,7 @@
             <th class="sortable" onclick="sortGastos('categoria')">Categoría</th>
             <th class="sortable" onclick="sortGastos('fuente')">Fuente</th>
             <th class="sortable" onclick="sortGastos('monto')">Monto</th>
-            <th>Nota</th>
-            <th></th>
+            <th>Nota</th><th></th>
           </tr></thead>
           <tbody id="gastos-body"></tbody>
         </table>
@@ -385,62 +346,49 @@
     </div>
   </div>
 
-  <!-- ==================== HISTORIAL ==================== -->
   <div id="tab-historial" class="section">
     <p class="section-title" style="margin-bottom:16px;">Historial mensual</p>
     <div class="two-col">
       <div class="card">
         <p class="section-title">Resumen por mes</p>
-        <div id="historial-list">
-          <div class="empty-state"><div class="empty-icon">📆</div>Sin datos de meses anteriores</div>
-        </div>
+        <div id="historial-list"><div class="empty-state"><div class="empty-icon">📆</div>Sin datos de meses anteriores</div></div>
       </div>
       <div class="card">
         <p class="section-title">Detalle del mes seleccionado</p>
-        <div id="historial-detail">
-          <div class="empty-state"><div class="empty-icon">👈</div>Selecciona un mes</div>
-        </div>
+        <div id="historial-detail"><div class="empty-state"><div class="empty-icon">👈</div>Selecciona un mes</div></div>
       </div>
     </div>
     <div class="card" style="margin-top:0;">
       <p class="section-title">Gastos del mes seleccionado</p>
-      <div id="historial-gastos-table">
-        <div class="empty-state"><div class="empty-icon">📋</div>Selecciona un mes para ver gastos</div>
-      </div>
+      <div id="historial-gastos-table"><div class="empty-state"><div class="empty-icon">📋</div>Selecciona un mes para ver gastos</div></div>
     </div>
   </div>
 
-  <!-- ==================== ANÁLISIS ==================== -->
   <div id="tab-analisis" class="section">
     <div class="card" style="background:linear-gradient(135deg,rgba(16,185,129,0.06),rgba(14,165,233,0.04));border-color:rgba(16,185,129,0.22);margin-bottom:14px;">
       <p class="section-title" style="color:var(--success);">🗓️ Día de libertad financiera</p>
       <div id="libertad-detail"></div>
     </div>
-
     <div class="card" style="margin-bottom:14px;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:8px;">
         <p class="section-title" style="margin-bottom:0;">📊 Gastos por categoría</p>
         <div style="display:flex;gap:6px;align-items:center;">
           <span style="font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace;">MESES:</span>
           <select id="chart-meses-sel" class="filter-select" onchange="renderAnalisis()">
-            <option value="3">Últimos 3</option>
-            <option value="6" selected>Últimos 6</option>
-            <option value="12">Últimos 12</option>
+            <option value="3">Últimos 3</option><option value="6" selected>Últimos 6</option><option value="12">Últimos 12</option>
           </select>
         </div>
       </div>
       <div id="chart-gastos-categorias" style="overflow-x:auto;"></div>
       <div id="chart-gastos-leyenda" style="display:flex;flex-wrap:wrap;gap:10px;margin-top:12px;"></div>
     </div>
-
     <div class="card" style="margin-bottom:14px;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:8px;">
         <p class="section-title" style="margin-bottom:0;">📉 Proyección de saldos</p>
         <div style="display:flex;gap:6px;align-items:center;">
           <span style="font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace;">VISTA:</span>
           <select id="proj-tipo-sel" class="filter-select" onchange="renderAnalisis()">
-            <option value="individual">Por deuda</option>
-            <option value="total" selected>Saldo total</option>
+            <option value="individual">Por deuda</option><option value="total" selected>Saldo total</option>
           </select>
         </div>
       </div>
@@ -449,7 +397,6 @@
     </div>
   </div>
 
-  <!-- ==================== ESTRATEGIA ==================== -->
   <div id="tab-estrategia" class="section">
     <div class="card" style="margin-bottom:14px;">
       <p class="section-title">⚙️ Configurar simulación</p>
@@ -461,43 +408,25 @@
         <div class="input-group">
           <label>¿Qué mostrar?</label>
           <select id="est-vista" class="filter-select" style="width:100%;padding:9px 12px;border-radius:9px;font-size:13px;" onchange="renderEstrategia()">
-            <option value="resumen">Resumen comparativo</option>
-            <option value="orden">Orden de pago</option>
-            <option value="timeline">Línea de tiempo</option>
+            <option value="resumen">Resumen comparativo</option><option value="orden">Orden de pago</option><option value="timeline">Línea de tiempo</option>
           </select>
         </div>
       </div>
-      <p style="font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace;margin-top:8px;">
-        El dinero extra se aplica cada mes a la deuda prioritaria según cada estrategia.
-      </p>
+      <p style="font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace;margin-top:8px;">El dinero extra se aplica cada mes a la deuda prioritaria según cada estrategia.</p>
     </div>
     <div id="estrategia-resultado"></div>
   </div>
 
-</div><!-- /app -->
+</div>
 
-<!-- ==================== MODALES ==================== -->
-
-<!-- Modal: Ingreso / Sueldo -->
 <div class="modal-overlay" id="salary-modal">
   <div class="modal">
     <div class="modal-title" id="salary-modal-title">Nueva fuente de ingreso</div>
     <div class="modal-grid">
-      <div class="input-group">
-        <label>Nombre de la fuente</label>
-        <input type="text" id="sal-nombre" placeholder="Ej: Empresa ABC"/>
-      </div>
-      <div class="input-group">
-        <label>Monto mensual ($)</label>
-        <input type="number" id="sal-monto" placeholder="Ej: 2500000"/>
-      </div>
-      <div class="input-group">
-        <label>Tipo</label>
-        <select id="sal-tipo">
-          <option value="fijo">Fijo mensual</option>
-          <option value="variable">Variable</option>
-          <option value="extra">Ingreso extra</option>
-        </select>
+      <div class="input-group"><label>Nombre de la fuente</label><input type="text" id="sal-nombre" placeholder="Ej: Empresa ABC"/></div>
+      <div class="input-group"><label>Monto mensual ($)</label><input type="number" id="sal-monto" placeholder="Ej: 2500000"/></div>
+      <div class="input-group"><label>Tipo</label>
+        <select id="sal-tipo"><option value="fijo">Fijo mensual</option><option value="variable">Variable</option><option value="extra">Ingreso extra</option></select>
       </div>
     </div>
     <div class="modal-actions">
@@ -507,43 +436,22 @@
   </div>
 </div>
 
-<!-- Modal: Nueva / Editar deuda -->
 <div class="modal-overlay" id="debt-modal">
   <div class="modal">
     <div class="modal-title" id="debt-modal-title">Nueva deuda</div>
     <div class="modal-grid">
-      <div class="input-group">
-        <label>Nombre de la deuda</label>
-        <input type="text" id="deu-nombre" placeholder="Ej: Banco XYZ"/>
+      <div class="input-group"><label>Nombre de la deuda</label><input type="text" id="deu-nombre" placeholder="Ej: Banco XYZ"/></div>
+      <div class="input-grid" style="grid-template-columns:1fr 1fr;">
+        <div class="input-group"><label>Cuota mensual ($)</label><input type="number" id="deu-cuota" placeholder="Ej: 300000"/></div>
+        <div class="input-group"><label>Saldo actual ($)</label><input type="number" id="deu-saldo" placeholder="Ej: 5000000"/></div>
       </div>
       <div class="input-grid" style="grid-template-columns:1fr 1fr;">
-        <div class="input-group">
-          <label>Cuota mensual ($)</label>
-          <input type="number" id="deu-cuota" placeholder="Ej: 300000"/>
-        </div>
-        <div class="input-group">
-          <label>Saldo actual ($)</label>
-          <input type="number" id="deu-saldo" placeholder="Ej: 5000000"/>
-        </div>
+        <div class="input-group"><label>Cuotas restantes</label><input type="number" id="deu-cuotas" placeholder="Ej: 24"/></div>
+        <div class="input-group"><label>Tasa E.A. (%)</label><input type="number" id="deu-tasa" placeholder="Ej: 18" step="0.01"/></div>
       </div>
-      <div class="input-grid" style="grid-template-columns:1fr 1fr;">
-        <div class="input-group">
-          <label>Cuotas restantes</label>
-          <input type="number" id="deu-cuotas" placeholder="Ej: 24"/>
-        </div>
-        <div class="input-group">
-          <label>Tasa E.A. (%)</label>
-          <input type="number" id="deu-tasa" placeholder="Ej: 18" step="0.01"/>
-        </div>
-      </div>
-      <div class="input-group">
-        <label>Fuente de descuento</label>
-        <select id="deu-fuente"></select>
-      </div>
-      <div class="input-group">
-        <label>Fecha de vencimiento (última cuota)</label>
-        <input type="month" id="deu-fechafin"
-          style="background:var(--bg2);border:1.5px solid var(--border);border-radius:9px;color:var(--text);font-family:'Outfit',sans-serif;font-size:13px;font-weight:500;padding:9px 12px;width:100%;"/>
+      <div class="input-group"><label>Fuente de descuento</label><select id="deu-fuente"></select></div>
+      <div class="input-group"><label>Fecha de vencimiento (última cuota)</label>
+        <input type="month" id="deu-fechafin" style="background:var(--bg2);border:1.5px solid var(--border);border-radius:9px;color:var(--text);font-family:'Outfit',sans-serif;font-size:13px;font-weight:500;padding:9px 12px;width:100%;"/>
       </div>
     </div>
     <div class="modal-actions">
@@ -553,100 +461,46 @@
   </div>
 </div>
 
-<!-- Modal: Editar gasto -->
+<div class="modal-overlay" id="prestamo-modal">
+  <div class="modal">
+    <div class="modal-title" id="prestamo-modal-title">Nuevo préstamo</div>
+    <div class="modal-grid">
+      <div class="input-group"><label>Persona</label><input type="text" id="pre-persona" placeholder="Ej: Erika"/></div>
+      <div class="input-group"><label>Monto ($)</label><input type="number" id="pre-monto" placeholder="Ej: 50000"/></div>
+      <div class="input-group"><label>Fuente (sueldo del que sale)</label><select id="pre-fuente"></select></div>
+      <div class="input-group"><label>Nota (opcional)</label><input type="text" id="pre-nota" placeholder="Ej: Para el mercado..."/></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closePrestamoModal()">Cancelar</button>
+      <button class="btn-add" onclick="savePrestamo()">Guardar</button>
+    </div>
+  </div>
+</div>
+
 <div class="modal-overlay" id="gasto-edit-modal">
   <div class="modal">
     <div class="modal-title">Editar gasto</div>
     <div class="modal-grid">
-      <div class="input-group">
-        <label>Concepto</label>
-        <input type="text" id="eg-concepto"/>
-      </div>
+      <div class="input-group"><label>Concepto</label><input type="text" id="eg-concepto"/></div>
       <div class="input-grid" style="grid-template-columns:1fr 1fr;">
-        <div class="input-group">
-          <label>Monto ($)</label>
-          <input type="number" id="eg-monto"/>
-        </div>
-        <div class="input-group">
-          <label>Categoría</label>
+        <div class="input-group"><label>Monto ($)</label><input type="number" id="eg-monto"/></div>
+        <div class="input-group"><label>Categoría</label>
           <select id="eg-categoria">
-  <optgroup label="🍽 Alimentación">
-    <option>Mercado</option>
-    <option>Restaurantes</option>
-    <option>Domicilios</option>
-    <option>Snacks y onces</option>
-    <option>Bebidas</option>
-  </optgroup>
-  <optgroup label="🏠 Vivienda">
-    <option>Arriendo</option>
-    <option>Luz</option>
-    <option>Gas</option>
-    <option>Agua</option>
-    <option>Internet y TV</option>
-    <option>Mantenimiento hogar</option>
-    <option>Mascotas</option>
-  </optgroup>
-  <optgroup label="🚗 Transporte">
-    <option>Gasolina</option>
-    <option>Transporte público</option>
-    <option>Mantenimiento vehículo</option>
-    <option>Parqueadero</option>
-    <option>Peajes</option>
-  </optgroup>
-  <optgroup label="💊 Salud">
-    <option>Médico y citas</option>
-    <option>Medicamentos</option>
-    <option>Gym y deporte</option>
-    <option>Óptica</option>
-    <option>Odontología</option>
-  </optgroup>
-  <optgroup label="📚 Educación">
-    <option>Cursos</option>
-    <option>Libros</option>
-    <option>Útiles</option>
-    <option>Matrícula</option>
-    <option>Academia hijos</option>
-  </optgroup>
-  <optgroup label="🎬 Entretenimiento">
-    <option>Streaming</option>
-    <option>Salidas</option>
-    <option>Viajes</option>
-    <option>Cine</option>
-    <option>Juegos</option>
-  </optgroup>
-  <optgroup label="👤 Personal">
-    <option>Ropa y calzado</option>
-    <option>Belleza y cuidado personal</option>
-    <option>Regalos</option>
-    <option>Préstamos a otros</option>
-  </optgroup>
-  <optgroup label="💰 Finanzas">
-    <option>Deudas</option>
-    <option>Ahorro</option>
-    <option>Seguros</option>
-    <option>Impuestos</option>
-  </optgroup>
-  <optgroup label="👨‍👩‍👧 Familia">
-    <option>Ayuda a padres</option>
-    <option>Hijos</option>
-    <option>Otros familiares</option>
-  </optgroup>
-  <optgroup label="💼 Trabajo">
-    <option>Herramientas trabajo</option>
-    <option>Suscripciones trabajo</option>
-    <option>Otro</option>
-  </optgroup>
-</select>
+            <optgroup label="🍽 Alimentación"><option>Mercado</option><option>Restaurantes</option><option>Domicilios</option><option>Snacks y onces</option><option>Bebidas</option></optgroup>
+            <optgroup label="🏠 Vivienda"><option>Arriendo</option><option>Luz</option><option>Gas</option><option>Agua</option><option>Internet y TV</option><option>Mantenimiento hogar</option><option>Mascotas</option></optgroup>
+            <optgroup label="🚗 Transporte"><option>Gasolina</option><option>Transporte público</option><option>Mantenimiento vehículo</option><option>Parqueadero</option><option>Peajes</option></optgroup>
+            <optgroup label="💊 Salud"><option>Médico y citas</option><option>Medicamentos</option><option>Gym y deporte</option><option>Óptica</option><option>Odontología</option></optgroup>
+            <optgroup label="📚 Educación"><option>Cursos</option><option>Libros</option><option>Útiles</option><option>Matrícula</option><option>Academia hijos</option></optgroup>
+            <optgroup label="🎬 Entretenimiento"><option>Streaming</option><option>Salidas</option><option>Viajes</option><option>Cine</option><option>Juegos</option></optgroup>
+            <optgroup label="👤 Personal"><option>Ropa y calzado</option><option>Belleza y cuidado personal</option><option>Regalos</option><option>Préstamos a otros</option></optgroup>
+            <optgroup label="💰 Finanzas"><option>Deudas</option><option>Ahorro</option><option>Seguros</option><option>Impuestos</option></optgroup>
+            <optgroup label="👨‍👩‍👧 Familia"><option>Ayuda a padres</option><option>Hijos</option><option>Otros familiares</option></optgroup>
+            <optgroup label="💼 Trabajo"><option>Herramientas trabajo</option><option>Suscripciones trabajo</option><option>Otro</option></optgroup>
+          </select>
         </div>
       </div>
-      <div class="input-group">
-        <label>Fuente</label>
-        <select id="eg-fuente"></select>
-      </div>
-      <div class="input-group">
-        <label>Nota</label>
-        <input type="text" id="eg-nota" placeholder="Descripción adicional..."/>
-      </div>
+      <div class="input-group"><label>Fuente</label><select id="eg-fuente"></select></div>
+      <div class="input-group"><label>Nota</label><input type="text" id="eg-nota" placeholder="Descripción adicional..."/></div>
     </div>
     <div class="modal-actions">
       <button class="btn-secondary" onclick="closeGastoEditModal()">Cancelar</button>
@@ -655,7 +509,6 @@
   </div>
 </div>
 
-<!-- Diálogo de confirmación -->
 <div class="confirm-overlay" id="confirm-overlay">
   <div class="confirm-box">
     <div class="confirm-icon" id="confirm-icon" style="display:none;"></div>
@@ -668,15 +521,13 @@
   </div>
 </div>
 
-<!-- Modal: Pagar cuota de deuda -->
 <div class="modal-overlay" id="pagar-cuota-modal">
   <div class="modal" style="max-width:420px;">
     <div class="modal-title" style="color:var(--purple);">💳 Pagar cuota de deuda</div>
     <p style="font-size:13px;color:var(--text3);margin-bottom:18px;line-height:1.55;">Selecciona la deuda cuya cuota mensual vas a registrar como gasto.</p>
     <div class="input-group" style="margin-bottom:14px;">
       <label>Deuda</label>
-      <select id="pc-deuda" onchange="onPcDeudaChange()"
-        style="background:var(--bg2);border:1.5px solid var(--border);border-radius:9px;color:var(--text);font-family:'Outfit',sans-serif;font-size:13px;font-weight:600;padding:9px 12px;width:100%;"></select>
+      <select id="pc-deuda" onchange="onPcDeudaChange()" style="background:var(--bg2);border:1.5px solid var(--border);border-radius:9px;color:var(--text);font-family:'Outfit',sans-serif;font-size:13px;font-weight:600;padding:9px 12px;width:100%;"></select>
     </div>
     <div id="pc-preview" style="display:none;margin-bottom:16px;">
       <div style="background:var(--purple-bg);border:1.5px solid rgba(139,92,246,0.2);border-radius:12px;padding:14px 16px;">
@@ -684,28 +535,17 @@
           <span style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;font-family:'JetBrains Mono',monospace;font-weight:600;">Cuota mensual</span>
           <span id="pc-monto-label" style="font-size:18px;font-weight:800;font-family:'JetBrains Mono',monospace;color:var(--purple);"></span>
         </div>
-        <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text2);margin-bottom:4px;">
-          <span>Fuente de descuento</span>
-          <span id="pc-fuente-label" style="font-weight:700;color:var(--text);"></span>
-        </div>
-        <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text2);margin-bottom:4px;">
-          <span>Cuotas restantes</span>
-          <span id="pc-cuotas-label" style="font-weight:700;font-family:'JetBrains Mono',monospace;color:var(--text);"></span>
-        </div>
-        <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text2);">
-          <span>Saldo pendiente</span>
-          <span id="pc-saldo-label" style="font-weight:700;font-family:'JetBrains Mono',monospace;color:var(--danger);"></span>
-        </div>
+        <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text2);margin-bottom:4px;"><span>Fuente de descuento</span><span id="pc-fuente-label" style="font-weight:700;color:var(--text);"></span></div>
+        <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text2);margin-bottom:4px;"><span>Cuotas restantes</span><span id="pc-cuotas-label" style="font-weight:700;font-family:'JetBrains Mono',monospace;color:var(--text);"></span></div>
+        <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text2);"><span>Saldo pendiente</span><span id="pc-saldo-label" style="font-weight:700;font-family:'JetBrains Mono',monospace;color:var(--danger);"></span></div>
       </div>
       <div class="input-group" style="margin-top:12px;">
         <label>Fuente de pago (sueldo)</label>
-        <select id="pc-fuente-pago"
-          style="background:var(--bg2);border:1.5px solid var(--border);border-radius:9px;color:var(--text);font-family:'Outfit',sans-serif;font-size:13px;font-weight:600;padding:9px 12px;width:100%;"></select>
+        <select id="pc-fuente-pago" style="background:var(--bg2);border:1.5px solid var(--border);border-radius:9px;color:var(--text);font-family:'Outfit',sans-serif;font-size:13px;font-weight:600;padding:9px 12px;width:100%;"></select>
       </div>
       <div class="input-group" style="margin-top:10px;">
         <label>Nota (opcional)</label>
-        <input type="text" id="pc-nota" placeholder="Ej: Cuota 5 de 24..."
-          style="background:var(--bg2);border:1.5px solid var(--border);border-radius:9px;color:var(--text);font-family:'Outfit',sans-serif;font-size:13px;font-weight:500;padding:9px 12px;width:100%;"/>
+        <input type="text" id="pc-nota" placeholder="Ej: Cuota 5 de 24..." style="background:var(--bg2);border:1.5px solid var(--border);border-radius:9px;color:var(--text);font-family:'Outfit',sans-serif;font-size:13px;font-weight:500;padding:9px 12px;width:100%;"/>
       </div>
     </div>
     <div class="modal-actions">
@@ -715,38 +555,25 @@
   </div>
 </div>
 
-<!-- Toast de notificaciones -->
 <div class="toast" id="toast"></div>
 
-<!-- ==================== SCRIPTS ==================== -->
-<!-- 1. Constantes y estado -->
 <script src="js/data/constants.js"></script>
 <script src="js/data/state.js"></script>
-
-<!-- 2. Utilidades -->
 <script src="js/modules/utils/helpers.js"></script>
-
-<!-- 3. UI base -->
 <script src="js/modules/ui/ui.js"></script>
 <script src="js/modules/ui/charts.js"></script>
-
-<!-- 4. Lógica financiera -->
 <script src="js/modules/services/financiero.js"></script>
-
-<!-- 5. Firebase (módulo ES) -->
 <script src="js/modules/services/firebase.js"></script>
-<!-- 6. Componentes -->
 <script src="js/modules/components/resumen.js"></script>
 <script src="js/modules/components/sueldos.js"></script>
 <script src="js/modules/components/deudas.js"></script>
 <script src="js/modules/components/abonos.js"></script>
+<script src="js/modules/components/prestamos.js"></script>
 <script src="js/modules/components/amortizacion.js"></script>
 <script src="js/modules/components/gastos.js"></script>
 <script src="js/modules/components/historial.js"></script>
 <script src="js/modules/components/analisis.js"></script>
 <script src="js/modules/components/estrategia.js"></script>
-
-<!-- 7. Inicialización -->
 <script src="js/main.js"></script>
 
 </body>
