@@ -182,7 +182,7 @@ function _ejecutarLiquidacion(d) {
   const mesClave   = mkKey(mesActual);
 
   if (!gastosPorMes[mesClave]) gastosPorMes[mesClave] = [];
-  gastosPorMes[mesClave].push({
+  const nuevoGasto = {
     id:        g(),
     concepto:  `Liquidación total: ${d.nombre}`,
     monto:     montoFinal,
@@ -190,9 +190,12 @@ function _ejecutarLiquidacion(d) {
     fuente:    d.fuente || '',
     nota:      `Pago final. Saldo cancelado: ${fmt(montoFinal)}`,
     ts:        Date.now(),
-  });
+    mes:       mesClave,
+  };
+  gastosPorMes[mesClave].push(nuevoGasto);
+  fbGuardarGasto(nuevoGasto);
 
-  abonoHistorial.push({
+  const nuevoAbono = {
     id:          g(),
     fecha:       new Date().toLocaleDateString(),
     deudaId:     d.id,
@@ -200,9 +203,14 @@ function _ejecutarLiquidacion(d) {
     tipo:        'Liquidación Total',
     monto:       montoFinal,
     nota:        'Cierre definitivo',
-  });
-d.saldo = 0; d.cuotas = 0; d.pagada = true;
-fbGuardarDeuda(d);
-actualizarTodo();
-showToast(`🎊 "${d.nombre}" ha sido liquidada con éxito`, 'success');
+    ts:          Date.now(),
+  };
+  abonoHistorial.push(nuevoAbono);
+  fbGuardarAbono(nuevoAbono);
+
+  d.saldo = 0; d.cuotas = 0; d.pagada = true;
+  fbGuardarDeuda(d);
+
+  actualizarTodo();
+  showToast(`🎊 "${d.nombre}" ha sido liquidada con éxito`, 'success');
 }
