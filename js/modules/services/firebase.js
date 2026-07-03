@@ -18,11 +18,12 @@ async function cargarDesdeFirebase() {
   try {
     showToast('🔗 Cargando datos...', 'info');
 
-    const [snapS, snapD, snapG, snapA] = await Promise.all([
+    const [snapS, snapD, snapG, snapA, snapP] = await Promise.all([
       db.collection('sueldos').get(),
       db.collection('deudas').get(),
       db.collection('gastos').get(),
       db.collection('abonos').get(),
+      db.collection('prestamos').get(),
     ]);
 
     sueldos = snapS.docs.map(d => d.data());
@@ -45,6 +46,9 @@ async function cargarDesdeFirebase() {
     });
 
     abonoHistorial = snapA.docs.map(d => d.data())
+      .sort((a, b) => (b.ts || 0) - (a.ts || 0));
+
+    prestamos = snapP.docs.map(d => d.data())
       .sort((a, b) => (b.ts || 0) - (a.ts || 0));
 
     _sincronizarContadorIds();
@@ -72,11 +76,12 @@ async function guardarEnFirebase() {
     showToast('☁️ Guardando...', 'info');
     const batch = db.batch();
 
-    const [snapS, snapD, snapG, snapA] = await Promise.all([
+    const [snapS, snapD, snapG, snapA, snapP] = await Promise.all([
       db.collection('sueldos').get(),
       db.collection('deudas').get(),
       db.collection('gastos').get(),
       db.collection('abonos').get(),
+      db.collection('prestamos').get(),
     ]);
 
     snapS.docs.forEach(d => batch.delete(d.ref));
@@ -93,6 +98,9 @@ async function guardarEnFirebase() {
     snapA.docs.forEach(d => batch.delete(d.ref));
     abonoHistorial.forEach(a => batch.set(db.collection('abonos').doc(String(a.id)), { ...a, ts: a.ts || Date.now() }));
 
+    snapP.docs.forEach(d => batch.delete(d.ref));
+    prestamos.forEach(p => batch.set(db.collection('prestamos').doc(String(p.id)), p));
+
     await batch.commit();
     showToast('☁️ Todo guardado correctamente', 'success');
   } catch (err) {
@@ -106,6 +114,7 @@ function _sincronizarContadorIds() {
     ...sueldos.map(x => x.id),
     ...deudas.map(x => x.id),
     ...abonoHistorial.map(x => x.id),
+    ...prestamos.map(x => x.id),
     ...Object.values(gastosPorMes).flat().map(x => x.id),
   ].filter(id => typeof id === 'number' && isFinite(id));
 
@@ -132,6 +141,7 @@ async function fbGuardarDeuda(d) {
 async function fbEliminarDeuda(id) {
   await db.collection('deudas').doc(String(id)).delete();
 }
+
 async function fbGuardarAbono(a) {
   await db.collection('abonos').doc(String(a.id)).set(a);
 }
@@ -146,4 +156,12 @@ async function fbGuardarGasto(g) {
 
 async function fbEliminarGasto(id) {
   await db.collection('gastos').doc(String(id)).delete();
+}
+
+async function fbGuardarPrestamo(p) {
+  await db.collection('prestamos').doc(String(p.id)).set(p);
+}
+
+async function fbEliminarPrestamo(id) {
+  await db.collection('prestamos').doc(String(id)).delete();
 }

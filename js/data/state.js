@@ -8,6 +8,7 @@ var sueldos       = [];
 var deudas        = [];
 var gastosPorMes  = {};
 var abonoHistorial = [];
+var prestamos = [];
 
 // ── Sesión / tiempo ───────────────────────────────────────────────
 var now       = new Date();
