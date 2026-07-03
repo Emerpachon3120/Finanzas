@@ -193,7 +193,8 @@ function _ejecutarLiquidacion(d) {
     mes:       mesClave,
   };
   gastosPorMes[mesClave].push(nuevoGasto);
-  fbGuardarGasto(nuevoGasto);
+  console.log('Guardando gasto:', nuevoGasto);
+  fbGuardarGasto(nuevoGasto).then(() => console.log('Gasto guardado ✅')).catch(e => console.error('Error gasto:', e));
 
   const nuevoAbono = {
     id:          g(),
@@ -206,7 +207,8 @@ function _ejecutarLiquidacion(d) {
     ts:          Date.now(),
   };
   abonoHistorial.push(nuevoAbono);
-  fbGuardarAbono(nuevoAbono);
+  console.log('Guardando abono:', nuevoAbono);
+  fbGuardarAbono(nuevoAbono).then(() => console.log('Abono guardado ✅')).catch(e => console.error('Error abono:', e));
 
   d.saldo = 0; d.cuotas = 0; d.pagada = true;
   fbGuardarDeuda(d);
