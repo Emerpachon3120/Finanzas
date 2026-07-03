@@ -21,6 +21,11 @@ function setGastoFilter(type, val, el) {
   renderGastos();
 }
 
+function setGastoFilterSelect(type, val) {
+  gastoFilterCat = val;
+  renderGastos();
+}
+
 function sortGastos(field) {
   if (gSortField === field) gSortDir *= -1;
   else { gSortField = field; gSortDir = 1; }
@@ -93,6 +98,7 @@ function renderGastos() {
   tbody.innerHTML = '';
   if (!gastos.length) {
     tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state"><div class="empty-icon">🔍</div>Sin resultados para este filtro</div></td></tr>';
+    renderFrecuentes();
     return;
   }
   gastos.forEach(g => {
@@ -108,8 +114,8 @@ function renderGastos() {
         <button class="btn-delete" onclick="deleteGasto(${g.id})">×</button>
       </td>
     </tr>`;
-      renderFrecuentes();
   });
+  renderFrecuentes();
 }
 
 function cambiarMes(dir) {
@@ -268,10 +274,7 @@ function confirmarPagarCuota() {
 }
 
 function getSugerenciasGastos(filtro = '') {
-  // Recopilar todos los gastos de todos los meses
   const todos = Object.values(gastosPorMes).flat();
-  
-  // Agrupar por concepto
   const agrupados = {};
   todos.forEach(g => {
     const key = g.concepto.toLowerCase().trim();
@@ -288,7 +291,6 @@ function getSugerenciasGastos(filtro = '') {
     agrupados[key].veces++;
   });
 
-  // Calcular promedio y ordenar por frecuencia
   return Object.values(agrupados)
     .map(s => ({
       ...s,
