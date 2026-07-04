@@ -104,8 +104,8 @@ function renderGastos() {
   gastos.forEach(g => {
       const col = catColors[g.categoria] || '#94a3b8';
       tbody.innerHTML += `<tr class="gasto-row">
-        <td>
-          <div class="gasto-flip-container" onclick="this.classList.toggle('flipped')">
+              <td colspan="6">
+                <div class="gasto-flip-container" onclick="this.classList.toggle('flipped')">
             <div class="gasto-flip-inner">
 
               <div class="gasto-flip-front">
@@ -114,9 +114,13 @@ function renderGastos() {
                   <div class="gasto-card-fuente">${g.fuente}</div>
                 </div>
                 <div class="gasto-card-right">
-                  <span class="badge" style="background:${col}18;color:${col};border:1px solid ${col}30;">${g.categoria}</span>
-                  <div class="gasto-card-monto">${fmt(g.monto)}</div>
-                </div>
+                                  <span class="badge" style="background:${col}18;color:${col};border:1px solid ${col}30;">${g.categoria}</span>
+                                  <div class="gasto-card-monto">${fmt(g.monto)}</div>
+                                  <div class="gasto-card-actions-desktop">
+                                    <button class="btn-edit" onclick="event.stopPropagation();editGasto(${g.id})">✏</button>
+                                    <button class="btn-delete" onclick="event.stopPropagation();deleteGasto(${g.id})">×</button>
+                                  </div>
+                                </div>
               </div>
 
               <div class="gasto-flip-back">
