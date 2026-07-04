@@ -78,22 +78,18 @@ body {
 /* ── Tabs ────────────────────────────────────────────────────────── */
 .tabs {
   display: flex;
-  gap: 2px;
+  flex-wrap: wrap;
+  gap: 6px;
   background: var(--bg2);
   border: 1.5px solid var(--border);
   border-radius: 14px;
-  padding: 5px;
+  padding: 8px;
   margin-bottom: 28px;
-  overflow-x: auto;
-  scrollbar-width: none;
 }
-.tabs::-webkit-scrollbar { display: none; }
 
 .tab {
-  flex: 1;
-  min-width: 85px;
-  padding: 9px 14px;
-  font-size: 12px;
+  padding: 10px 16px;
+  font-size: 13px;
   font-weight: 700;
   font-family: 'Outfit', sans-serif;
   letter-spacing: 0.02em;
