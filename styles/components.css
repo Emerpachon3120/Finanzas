@@ -624,3 +624,93 @@ th.sort-desc::after { content: ' ↓'; opacity: 1; color: var(--accent); }
 .modal-grid  { display: flex; flex-direction: column; gap: 14px; margin-bottom: 22px; }
 .modal-actions { display: flex; gap: 10px; }
 .modal-actions > * { flex: 1; }
+
+/* ── Tarjetas de gasto flip (móvil) ──────────────────────────────── */
+.gasto-flip-container {
+  perspective: 1000px;
+  cursor: pointer;
+}
+
+.gasto-flip-inner {
+  position: relative;
+  width: 100%;
+  min-height: 76px;
+  transition: transform 0.5s;
+  transform-style: preserve-3d;
+}
+
+.gasto-flip-container.flipped .gasto-flip-inner {
+  transform: rotateY(180deg);
+}
+
+.gasto-flip-front,
+.gasto-flip-back {
+  position: absolute;
+  width: 100%;
+  min-height: 76px;
+  backface-visibility: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.gasto-flip-back {
+  transform: rotateY(180deg);
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: center;
+  gap: 10px;
+}
+
+.gasto-card-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.gasto-card-concepto {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.gasto-card-fuente {
+  font-size: 11px;
+  color: var(--text3);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.gasto-card-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+}
+
+.gasto-card-monto {
+  font-size: 15px;
+  font-weight: 800;
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--text);
+}
+
+.gasto-card-nota {
+  font-size: 12px;
+  color: var(--text2);
+  text-align: center;
+  line-height: 1.5;
+}
+
+.gasto-card-actions {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.gasto-card-actions .btn-edit,
+.gasto-card-actions .btn-delete {
+  font-size: 12px;
+  padding: 6px 14px;
+  border-radius: 8px;
+  border: 1.5px solid var(--border);
+}
