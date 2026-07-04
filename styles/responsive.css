@@ -3,18 +3,204 @@
    ===================================================================== */
 
 @media (max-width: 600px) {
+
+  /* ── Contenedor general ─────────────────────────────────────────── */
+  .app {
+    padding: 16px 12px 40px;
+  }
+
+  /* ── Header ──────────────────────────────────────────────────────── */
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 20px;
+    padding-bottom: 18px;
+  }
+
+  .header-left h1 {
+    font-size: 20px;
+  }
+
+  #user-badge {
+    order: -1;
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  #user-badge img {
+    width: 20px;
+    height: 20px;
+  }
+
+  #user-badge span {
+    font-size: 11px;
+    max-width: 150px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .header-badges {
+    width: 100%;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .header-badge {
+    font-size: 10px;
+    padding: 4px 10px;
+  }
+
+  /* ── Tabs ────────────────────────────────────────────────────────── */
   .tabs {
+    flex-wrap: nowrap;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
+    justify-content: flex-start;
+    gap: 4px;
+    padding: 6px;
   }
   .tabs::-webkit-scrollbar {
     display: none;
   }
   .tab {
     flex-shrink: 0;
-    padding: 8px 12px;
+    padding: 9px 13px;
     font-size: 12px;
     white-space: nowrap;
+  }
+
+  /* ── Layout de 2 columnas → 1 columna ───────────────────────────── */
+  .two-col {
+    grid-template-columns: 1fr;
+  }
+
+  /* ── Métricas ────────────────────────────────────────────────────── */
+  .metric-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+  .metric {
+    padding: 12px 14px;
+  }
+  .metric-value {
+    font-size: 17px;
+  }
+  .metric-label {
+    font-size: 9px;
+  }
+
+  /* ── Cards ───────────────────────────────────────────────────────── */
+  .card, .highlight-card, .abono-card {
+    padding: 16px 14px;
+  }
+
+  /* ── Tabla de deudas: ocultar columnas menos importantes ─────────── */
+  .debt-header,
+  .debt-row {
+    grid-template-columns: 2fr 1fr 1fr 90px;
+    gap: 6px;
+  }
+  .debt-header span:nth-child(4),
+  .debt-header span:nth-child(5),
+  .debt-header span:nth-child(6),
+  .debt-row span:nth-child(4),
+  .debt-row span:nth-child(5),
+  .debt-row span:nth-child(6) {
+    display: none;
+  }
+  .debt-name {
+    font-size: 12px;
+  }
+  .debt-amt {
+    font-size: 11px;
+  }
+
+  /* ── Formularios / input-grid ────────────────────────────────────── */
+  .input-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  /* ── Salary cards ────────────────────────────────────────────────── */
+  .salary-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* ── Filtros (chips) ────────────────────────────────────────────── */
+  .filter-row {
+    gap: 6px;
+  }
+  .filter-chip {
+    font-size: 10px;
+    padding: 5px 10px;
+  }
+  .filter-select {
+    font-size: 11px;
+    padding: 6px 10px;
+  }
+
+  /* ── Búsqueda ────────────────────────────────────────────────────── */
+  .search-input {
+    width: 100%;
+  }
+
+  /* ── Tabla de gastos: scroll horizontal en vez de recortar ───────── */
+  .expense-table {
+    font-size: 12px;
+  }
+  .expense-table th,
+  .expense-table td {
+    padding: 7px 6px;
+  }
+
+  /* ── Modal ───────────────────────────────────────────────────────── */
+  .modal {
+    padding: 20px;
+    max-width: 92vw;
+  }
+  .modal-title {
+    font-size: 16px;
+  }
+
+  /* ── Month nav ───────────────────────────────────────────────────── */
+  .month-nav {
+    padding: 6px 10px;
+  }
+  .month-nav span {
+    font-size: 12px;
+    min-width: 90px;
+  }
+
+  /* ── Amort table ─────────────────────────────────────────────────── */
+  .amort-table {
+    font-size: 11px;
+  }
+  .amort-table th,
+  .amort-table td {
+    padding: 6px 6px;
+  }
+
+  /* ── Debt bar (resumen) ──────────────────────────────────────────── */
+  .debt-bar-label {
+    font-size: 11px;
+  }
+  .debt-bar-sub {
+    font-size: 9px;
+  }
+
+  /* ── Order list (estrategia) ─────────────────────────────────────── */
+  .order-list li {
+    font-size: 12px;
+  }
+
+  /* ── Método boxes (estrategia) ───────────────────────────────────── */
+  .method-title {
+    font-size: 13px;
+  }
+  .method-desc {
+    font-size: 12px;
   }
 }
