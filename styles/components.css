@@ -738,6 +738,13 @@ th.sort-desc::after { content: ' ↓'; opacity: 1; color: var(--accent); }
   gap: 16px;
   backface-visibility: visible;
 }
+.gasto-card-right {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  gap: 14px !important;
+  flex-shrink: 0;
+}
 
 .gasto-flip-back {
   display: none;
