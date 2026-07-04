@@ -204,3 +204,30 @@
     font-size: 12px;
   }
 }
+
+/* ── Tabla de gastos: convertir en tarjetas en móvil ─────────────── */
+  .expense-table thead {
+    display: none;
+  }
+  .expense-table, .expense-table tbody, .expense-table tr, .expense-table td {
+    display: block;
+    width: 100%;
+  }
+  .expense-table tr {
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    margin-bottom: 10px;
+    padding: 12px;
+  }
+  .expense-table td {
+    padding: 4px 0;
+    border: none;
+  }
+  .expense-table td:last-child {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 6px;
+    padding-top: 8px;
+    border-top: 1px solid var(--border);
+  }
