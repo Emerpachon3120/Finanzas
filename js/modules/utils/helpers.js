@@ -69,7 +69,8 @@ function parsearMonto(valor) {
 
 /** Suma de todos los ingresos activos */
 function totalIngresos() {
-  return sueldos.reduce((a, s) => a + s.monto, 0);
+  const mes = mkKey(mesActual);
+  return sueldos.reduce((a, s) => a + (estaRecibido(mes, s.id) ? s.monto : 0), 0);
 }
 
 /** Suma de las cuotas de deudas activas (no pagadas) */

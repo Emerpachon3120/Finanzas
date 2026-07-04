@@ -28,12 +28,13 @@ async function cargarDesdeFirebase() {
   try {
     showToast('🔗 Cargando datos...', 'info');
 
-    const [snapS, snapD, snapG, snapA, snapP] = await Promise.all([
+    const [snapS, snapD, snapG, snapA, snapP, snapI] = await Promise.all([
       userCollection('sueldos').get(),
       userCollection('deudas').get(),
       userCollection('gastos').get(),
       userCollection('abonos').get(),
       userCollection('prestamos').get(),
+      userCollection('ingresos_recibidos').get(),
     ]);
 
     sueldos = snapS.docs.map(d => d.data());
@@ -61,6 +62,14 @@ async function cargarDesdeFirebase() {
     prestamos = snapP.docs.map(d => d.data())
       .sort((a, b) => (b.ts || 0) - (a.ts || 0));
 
+    // Cada doc de ingresos_recibidos tiene el ID "mes_sueldoId" y un campo "recibido"
+    ingresosRecibidos = {};
+    snapI.docs.forEach(d => {
+      const data = d.data();
+      if (!ingresosRecibidos[data.mes]) ingresosRecibidos[data.mes] = {};
+      ingresosRecibidos[data.mes][data.sueldoId] = data.recibido;
+    });
+
     _sincronizarContadorIds();
     actualizarTodo();
 
@@ -77,12 +86,13 @@ async function guardarEnFirebase() {
     showToast('☁️ Guardando...', 'info');
     const batch = db.batch();
 
-    const [snapS, snapD, snapG, snapA, snapP] = await Promise.all([
+    const [snapS, snapD, snapG, snapA, snapP, snapI] = await Promise.all([
       userCollection('sueldos').get(),
       userCollection('deudas').get(),
       userCollection('gastos').get(),
       userCollection('abonos').get(),
       userCollection('prestamos').get(),
+      userCollection('ingresos_recibidos').get(),
     ]);
 
     snapS.docs.forEach(d => batch.delete(d.ref));
@@ -101,6 +111,14 @@ async function guardarEnFirebase() {
 
     snapP.docs.forEach(d => batch.delete(d.ref));
     prestamos.forEach(p => batch.set(userCollection('prestamos').doc(String(p.id)), p));
+
+    snapI.docs.forEach(d => batch.delete(d.ref));
+    Object.entries(ingresosRecibidos).forEach(([mes, sueldosObj]) => {
+      Object.entries(sueldosObj).forEach(([sueldoId, recibido]) => {
+        const docId = `${mes}_${sueldoId}`;
+        batch.set(userCollection('ingresos_recibidos').doc(docId), { mes, sueldoId: parseInt(sueldoId), recibido });
+      });
+    });
 
     await batch.commit();
     showToast('☁️ Todo guardado correctamente', 'success');
@@ -165,4 +183,11 @@ async function fbGuardarPrestamo(p) {
 
 async function fbEliminarPrestamo(id) {
   await userCollection('prestamos').doc(String(id)).delete();
+}
+
+// ── Ingresos recibidos (por mes y sueldo) ─────────────────────────
+
+async function fbGuardarIngresoRecibido(mes, sueldoId, recibido) {
+  const docId = `${mes}_${sueldoId}`;
+  await userCollection('ingresos_recibidos').doc(docId).set({ mes, sueldoId, recibido });
 }
