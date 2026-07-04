@@ -714,3 +714,69 @@ th.sort-desc::after { content: ' ↓'; opacity: 1; color: var(--accent); }
   border-radius: 8px;
   border: 1.5px solid var(--border);
 }
+/* ── Ajuste desktop: fila de gasto en línea horizontal ────────────── */
+.expense-table td {
+  padding: 12px 10px;
+}
+
+.gasto-flip-container {
+  perspective: none;
+}
+
+.gasto-flip-inner {
+  position: static;
+  transform: none !important;
+  transition: none;
+}
+
+.gasto-flip-front {
+  position: static;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: 16px;
+  backface-visibility: visible;
+}
+
+.gasto-flip-back {
+  display: none;
+}
+
+.gasto-card-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.gasto-card-concepto {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.gasto-card-fuente {
+  font-size: 11px;
+  color: var(--text3);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.gasto-card-right {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-shrink: 0;
+}
+
+.gasto-card-monto {
+  font-size: 13px;
+  font-weight: 700;
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--text);
+  min-width: 90px;
+  text-align: right;
+}
+
+.gasto-card-actions-desktop {
+  display: flex;
+  gap: 4px;
+}
