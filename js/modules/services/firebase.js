@@ -1,5 +1,6 @@
 /* =====================================================================
    js/modules/services/firebase.js — Conector con Firebase Firestore
+   Ahora con datos separados por usuario (multiusuario).
    ===================================================================== */
 
 const firebaseConfig = {
@@ -14,16 +15,25 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
+// ── Helper: obtiene la referencia a la carpeta del usuario actual ──
+
+function userCollection(nombre) {
+  if (!currentUser) throw new Error('No hay usuario autenticado');
+  return db.collection('usuarios').doc(currentUser.uid).collection(nombre);
+}
+
+// ── Carga y procesamiento de datos ───────────────────────────────
+
 async function cargarDesdeFirebase() {
   try {
     showToast('🔗 Cargando datos...', 'info');
 
     const [snapS, snapD, snapG, snapA, snapP] = await Promise.all([
-      db.collection('sueldos').get(),
-      db.collection('deudas').get(),
-      db.collection('gastos').get(),
-      db.collection('abonos').get(),
-      db.collection('prestamos').get(),
+      userCollection('sueldos').get(),
+      userCollection('deudas').get(),
+      userCollection('gastos').get(),
+      userCollection('abonos').get(),
+      userCollection('prestamos').get(),
     ]);
 
     sueldos = snapS.docs.map(d => d.data());
@@ -54,15 +64,6 @@ async function cargarDesdeFirebase() {
     _sincronizarContadorIds();
     actualizarTodo();
 
-    const bv = document.getElementById('bienvenida-screen');
-    if (bv) bv.style.display = 'none';
-
-    const btnSave = document.getElementById('btn-gsave');
-    if (btnSave) btnSave.style.display = '';
-
-    const btnSync = document.getElementById('btn-gsync');
-    if (btnSync) { btnSync.textContent = '✅ Conectado'; btnSync.disabled = true; }
-
     bdCargada = true;
     showToast('✅ Datos cargados correctamente', 'success');
   } catch (err) {
@@ -77,29 +78,29 @@ async function guardarEnFirebase() {
     const batch = db.batch();
 
     const [snapS, snapD, snapG, snapA, snapP] = await Promise.all([
-      db.collection('sueldos').get(),
-      db.collection('deudas').get(),
-      db.collection('gastos').get(),
-      db.collection('abonos').get(),
-      db.collection('prestamos').get(),
+      userCollection('sueldos').get(),
+      userCollection('deudas').get(),
+      userCollection('gastos').get(),
+      userCollection('abonos').get(),
+      userCollection('prestamos').get(),
     ]);
 
     snapS.docs.forEach(d => batch.delete(d.ref));
-    sueldos.forEach(s => batch.set(db.collection('sueldos').doc(String(s.id)), s));
+    sueldos.forEach(s => batch.set(userCollection('sueldos').doc(String(s.id)), s));
 
     snapD.docs.forEach(d => batch.delete(d.ref));
-    deudas.forEach(d => batch.set(db.collection('deudas').doc(String(d.id)), d));
+    deudas.forEach(d => batch.set(userCollection('deudas').doc(String(d.id)), d));
 
     snapG.docs.forEach(d => batch.delete(d.ref));
     Object.entries(gastosPorMes).forEach(([mes, lista]) => {
-      lista.forEach(g => batch.set(db.collection('gastos').doc(String(g.id)), { ...g, mes }));
+      lista.forEach(g => batch.set(userCollection('gastos').doc(String(g.id)), { ...g, mes }));
     });
 
     snapA.docs.forEach(d => batch.delete(d.ref));
-    abonoHistorial.forEach(a => batch.set(db.collection('abonos').doc(String(a.id)), { ...a, ts: a.ts || Date.now() }));
+    abonoHistorial.forEach(a => batch.set(userCollection('abonos').doc(String(a.id)), { ...a, ts: a.ts || Date.now() }));
 
     snapP.docs.forEach(d => batch.delete(d.ref));
-    prestamos.forEach(p => batch.set(db.collection('prestamos').doc(String(p.id)), p));
+    prestamos.forEach(p => batch.set(userCollection('prestamos').doc(String(p.id)), p));
 
     await batch.commit();
     showToast('☁️ Todo guardado correctamente', 'success');
@@ -127,41 +128,41 @@ function _sincronizarContadorIds() {
 // ── Operaciones individuales ──────────────────────────────────────
 
 async function fbGuardarSueldo(s) {
-  await db.collection('sueldos').doc(String(s.id)).set(s);
+  await userCollection('sueldos').doc(String(s.id)).set(s);
 }
 
 async function fbEliminarSueldo(id) {
-  await db.collection('sueldos').doc(String(id)).delete();
+  await userCollection('sueldos').doc(String(id)).delete();
 }
 
 async function fbGuardarDeuda(d) {
-  await db.collection('deudas').doc(String(d.id)).set(d);
+  await userCollection('deudas').doc(String(d.id)).set(d);
 }
 
 async function fbEliminarDeuda(id) {
-  await db.collection('deudas').doc(String(id)).delete();
+  await userCollection('deudas').doc(String(id)).delete();
 }
 
 async function fbGuardarAbono(a) {
-  await db.collection('abonos').doc(String(a.id)).set(a);
+  await userCollection('abonos').doc(String(a.id)).set(a);
 }
 
 async function fbEliminarAbono(id) {
-  await db.collection('abonos').doc(String(id)).delete();
+  await userCollection('abonos').doc(String(id)).delete();
 }
 
 async function fbGuardarGasto(g) {
-  await db.collection('gastos').doc(String(g.id)).set(g);
+  await userCollection('gastos').doc(String(g.id)).set(g);
 }
 
 async function fbEliminarGasto(id) {
-  await db.collection('gastos').doc(String(id)).delete();
+  await userCollection('gastos').doc(String(id)).delete();
 }
 
 async function fbGuardarPrestamo(p) {
-  await db.collection('prestamos').doc(String(p.id)).set(p);
+  await userCollection('prestamos').doc(String(p.id)).set(p);
 }
 
 async function fbEliminarPrestamo(id) {
-  await db.collection('prestamos').doc(String(id)).delete();
+  await userCollection('prestamos').doc(String(id)).delete();
 }
