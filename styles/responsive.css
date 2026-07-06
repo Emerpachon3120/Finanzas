@@ -222,4 +222,39 @@
   .method-desc {
     font-size: 12px;
   }
+
+  /* ── Dashboard de Análisis en móvil ────────────────────────────── */
+  #dash-kpis {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  #chart-ingresos-gastos,
+  #chart-proyeccion,
+  #chart-gastos-categorias {
+    overflow-x: auto;
+  }
+
+  #chart-ingresos-gastos svg,
+  #chart-proyeccion svg {
+    min-width: 480px;
+  }
+
+  #chart-gastos-categorias > div {
+    flex-direction: column !important;
+  }
+
+  #chart-gastos-categorias > div > div {
+    min-width: 100% !important;
+    margin-bottom: 16px;
+  }
+
+  #dash-prestamos-dona svg,
+  #chart-gastos-fuente svg {
+    max-width: 140px;
+  }
+
+  .section-title {
+    font-size: 11px;
+    flex-wrap: wrap;
+  }
 }
