@@ -155,31 +155,46 @@ function renderIngresosVsGastos() {
 // ── Gastos por categoría y por fuente ──────────────────────────────
 
 function renderGastosCategoriaFuente() {
-  const nMeses  = parseInt(document.getElementById('dash-meses-sel')?.value || 6);
-  const mesKeys = Object.keys(gastosPorMes).sort().slice(-nMeses);
-  const labels  = mesKeys.map(k => fmtKey(k).substring(0, 3) + ' ' + k.split('-')[0].slice(2));
+  const nMeses  = parseInt(document.getElementById('dash-meses-sel')?.value || 3);
+  const mesKeys = Object.keys(gastosPorMes).sort().slice(-Math.min(nMeses, 3)); // máximo 3 columnas
 
-  const cats = Object.keys(catColors);
-  const dataCateg = {};
-  cats.forEach(c => {
-    dataCateg[c] = mesKeys.map(k => (gastosPorMes[k] || []).filter(g => g.categoria === c).reduce((a, g) => a + g.monto, 0));
-  });
+  const coloresMes = ['#0ea5e9', '#10b981', '#f59e0b'];
 
-  const catsConDatos = cats.filter(c => dataCateg[c].some(v => v > 0));
-  const coloresBar   = catsConDatos.map(c => catColors[c]);
-  const dataFiltrada = {};
-  catsConDatos.forEach(c => dataFiltrada[c] = dataCateg[c]);
+  const elCat = document.getElementById('chart-gastos-categorias');
+  if (elCat) {
+    if (!mesKeys.length) {
+      elCat.innerHTML = `<div class="empty-state" style="padding:20px 0;"><div class="empty-icon">📊</div>Sin datos</div>`;
+    } else {
+      elCat.innerHTML = `<div style="display:flex;gap:16px;overflow-x:auto;">
+        ${mesKeys.map((mes, i) => {
+          const gastos = gastosPorMes[mes] || [];
+          const porCat = {};
+          gastos.forEach(g => { porCat[g.categoria] = (porCat[g.categoria] || 0) + g.monto; });
+          const ordenado = Object.entries(porCat).sort((a, b) => b[1] - a[1]);
+          const maxVal = ordenado.length ? ordenado[0][1] : 1;
+          const col = coloresMes[i % coloresMes.length];
 
-  svgBarChart('chart-gastos-categorias', labels, dataFiltrada, coloresBar);
+          return `<div style="flex:1;min-width:220px;">
+            <div style="font-size:11px;font-weight:800;color:${col};text-transform:uppercase;letter-spacing:0.08em;font-family:'JetBrains Mono',monospace;margin-bottom:10px;">${fmtKey(mes)}</div>
+            ${ordenado.map(([cat, val]) => {
+              const pctW = Math.round(val / maxVal * 100);
+              return `<div style="margin-bottom:8px;">
+                <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:2px;">
+                  <span style="color:var(--text2);">${cat}</span>
+                  <span style="font-family:'JetBrains Mono',monospace;color:var(--text3);">${fmt(val)}</span>
+                </div>
+                <div style="height:6px;background:var(--bg3);border-radius:3px;overflow:hidden;">
+                  <div style="height:100%;width:${pctW}%;background:${col};border-radius:3px;"></div>
+                </div>
+              </div>`;
+            }).join('')}
+          </div>`;
+        }).join('')}
+      </div>`;
+    }
+  }
 
-  const legEl = document.getElementById('chart-gastos-leyenda');
-  if (legEl) legEl.innerHTML = catsConDatos.map((c, i) => `
-    <div style="display:flex;align-items:center;gap:5px;">
-      <div style="width:10px;height:10px;border-radius:2px;background:${coloresBar[i]};flex-shrink:0;"></div>
-      <span style="font-size:10px;color:var(--text3);font-family:'JetBrains Mono',monospace;">${c}</span>
-    </div>`).join('');
-
-  // Gastos por fuente (dona)
+  // Gastos por fuente (dona) - mes actual
   const gastosMes = getGastosActuales();
   const porFuente = {};
   gastosMes.forEach(g => { porFuente[g.fuente] = (porFuente[g.fuente] || 0) + g.monto; });
@@ -191,7 +206,7 @@ function renderGastosCategoriaFuente() {
 
   const elFuente = document.getElementById('chart-gastos-fuente');
   if (elFuente) {
-    elFuente.innerHTML = _svgDonut(dataFuente) + `
+    elFuente.innerHTML = _svgDonut(dataFuente, 180) + `
       <div style="display:flex;flex-direction:column;gap:6px;margin-top:12px;">
         ${dataFuente.map(d => `
           <div style="display:flex;justify-content:space-between;align-items:center;font-size:12px;">

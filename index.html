@@ -34,7 +34,7 @@
 
   <div id="login-screen" style="position:fixed; inset:0; z-index:9998; background: var(--bg); display:flex; align-items:center; justify-content:center;">
     <div style="text-align:center; max-width:380px; padding:32px 24px;">
-      <div style="font-size:56px; margin-bottom:16px;">📊</div>
+      <i data-lucide="line-chart" style="width:52px;height:52px;color:var(--accent);margin-bottom:16px;"></i>
       <div style="font-size:22px; font-weight:800; font-family:'Outfit',sans-serif; color:var(--text); margin-bottom:8px;">Finanzas Personales</div>
       <div style="font-size:13px; color:var(--text3); font-family:'Outfit',sans-serif; margin-bottom:32px; line-height:1.6;">
         Inicia sesión con tu cuenta de Google<br>para acceder a tus datos financieros.
@@ -89,7 +89,7 @@
       <div id="debt-overview"></div>
     </div>
     <div class="card" id="resumen-libertad-card" style="background:linear-gradient(135deg,rgba(16,185,129,0.05),rgba(14,165,233,0.04));border-color:rgba(16,185,129,0.2);">
-      <p class="section-title" style="color:var(--success);">🗓️ Día de libertad financiera</p>
+      <p class="section-title" style="color:var(--success);"><i data-lucide="calendar-check" style="color:var(--success);width:15px;height:15px;"></i> Día de libertad financiera</p>
       <div id="resumen-libertad-content"></div>
     </div>
   </div>
@@ -163,7 +163,7 @@
     <div class="card">
       <p class="section-title">Historial de abonos</p>
       <div id="abono-historial-list">
-        <div class="empty-state"><div class="empty-icon">💸</div>No hay abonos registrados</div>
+        <div class="empty-state"><i data-lucide="piggy-bank" style="width:32px;height:32px;color:var(--text3);margin-bottom:10px;display:block;margin-left:auto;margin-right:auto;"></i>No hay abonos registrados</div>
       </div>
     </div>
   </div>
@@ -212,7 +212,7 @@
     <div class="card">
       <p class="section-title">Nuevo gasto</p>
       <div style="margin-bottom:12px;">
-        <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.1em;font-family:'JetBrains Mono',monospace;font-weight:600;margin-bottom:8px;">💡 Frecuentes</div>
+        <div style="display:flex;align-items:center;gap:6px;font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.1em;font-family:'JetBrains Mono',monospace;font-weight:600;margin-bottom:8px;"><i data-lucide="lightbulb" style="width:12px;height:12px;color:var(--warning);"></i> Frecuentes</div>
         <div id="gastos-frecuentes" style="display:flex;flex-wrap:wrap;gap:6px;"></div>
       </div>
       <div class="input-grid">
@@ -228,34 +228,34 @@
         <div class="input-group">
           <label>Categoría</label>
           <select id="g-categoria">
-            <optgroup label="🍽 Alimentación">
+            <optgroup label="Alimentación">
               <option>Mercado</option><option>Restaurantes</option><option>Domicilios</option><option>Snacks y onces</option><option>Bebidas</option>
             </optgroup>
-            <optgroup label="🏠 Vivienda">
+            <optgroup label="Vivienda">
               <option>Arriendo</option><option>Luz</option><option>Gas</option><option>Agua</option><option>Internet y TV</option><option>Mantenimiento hogar</option><option>Mascotas</option>
             </optgroup>
-            <optgroup label="🚗 Transporte">
+            <optgroup label="Transporte">
               <option>Gasolina</option><option>Transporte público</option><option>Mantenimiento vehículo</option><option>Parqueadero</option><option>Peajes</option>
             </optgroup>
-            <optgroup label="💊 Salud">
+            <optgroup label="Salud">
               <option>Médico y citas</option><option>Medicamentos</option><option>Gym y deporte</option><option>Óptica</option><option>Odontología</option>
             </optgroup>
-            <optgroup label="📚 Educación">
+            <optgroup label="Educación">
               <option>Cursos</option><option>Libros</option><option>Útiles</option><option>Matrícula</option><option>Academia hijos</option>
             </optgroup>
-            <optgroup label="🎬 Entretenimiento">
+            <optgroup label="Entretenimiento">
               <option>Streaming</option><option>Salidas</option><option>Viajes</option><option>Cine</option><option>Juegos</option>
             </optgroup>
-            <optgroup label="👤 Personal">
+            <optgroup label="Personal">
               <option>Ropa y calzado</option><option>Belleza y cuidado personal</option><option>Regalos</option><option>Préstamos a otros</option>
             </optgroup>
-            <optgroup label="💰 Finanzas">
+            <optgroup label="Finanzas">
               <option>Deudas</option><option>Ahorro</option><option>Seguros</option><option>Impuestos</option>
             </optgroup>
-            <optgroup label="👨‍👩‍👧 Familia">
+            <optgroup label="Familia">
               <option>Ayuda a padres</option><option>Hijos</option><option>Otros familiares</option>
             </optgroup>
-            <optgroup label="💼 Trabajo">
+            <optgroup label="Trabajo">
               <option>Herramientas trabajo</option><option>Suscripciones trabajo</option><option>Otro</option>
             </optgroup>
           </select>
@@ -273,7 +273,7 @@
       </div>
       <div style="display:flex;gap:10px;">
         <button class="btn-add" onclick="agregarGasto()">+ Agregar gasto</button>
-        <button class="btn-cuota" onclick="openPagarCuotaModal()">💳 Pagar cuota</button>
+        <button class="btn-cuota" onclick="openPagarCuotaModal()"><i data-lucide="credit-card" style="width:14px;height:14px;vertical-align:-2px;margin-right:4px;"></i>Pagar cuota</button>
       </div>
     </div>
 
@@ -288,34 +288,34 @@
       <span style="font-size:11px;color:var(--text3);font-weight:700;font-family:'JetBrains Mono',monospace;">CATEGORÍA:</span>
       <select class="filter-select" onchange="setGastoFilterSelect('cat', this.value)">
         <option value="todas">Todas</option>
-        <optgroup label="🍽 Alimentación">
+        <optgroup label="Alimentación">
           <option value="Mercado">Mercado</option><option value="Restaurantes">Restaurantes</option><option value="Domicilios">Domicilios</option><option value="Snacks y onces">Snacks y onces</option><option value="Bebidas">Bebidas</option>
         </optgroup>
-        <optgroup label="🏠 Vivienda">
+        <optgroup label="Vivienda">
           <option value="Arriendo">Arriendo</option><option value="Luz">Luz</option><option value="Gas">Gas</option><option value="Agua">Agua</option><option value="Internet y TV">Internet y TV</option><option value="Mantenimiento hogar">Mantenimiento hogar</option><option value="Mascotas">Mascotas</option>
         </optgroup>
-        <optgroup label="🚗 Transporte">
+        <optgroup label="Transporte">
           <option value="Gasolina">Gasolina</option><option value="Transporte público">Transporte público</option><option value="Mantenimiento vehículo">Mantenimiento vehículo</option><option value="Parqueadero">Parqueadero</option><option value="Peajes">Peajes</option>
         </optgroup>
-        <optgroup label="💊 Salud">
+        <optgroup label="Salud">
           <option value="Médico y citas">Médico y citas</option><option value="Medicamentos">Medicamentos</option><option value="Gym y deporte">Gym y deporte</option><option value="Óptica">Óptica</option><option value="Odontología">Odontología</option>
         </optgroup>
-        <optgroup label="📚 Educación">
+        <optgroup label="Educación">
           <option value="Cursos">Cursos</option><option value="Libros">Libros</option><option value="Útiles">Útiles</option><option value="Matrícula">Matrícula</option><option value="Academia hijos">Academia hijos</option>
         </optgroup>
-        <optgroup label="🎬 Entretenimiento">
+        <optgroup label="Entretenimiento">
           <option value="Streaming">Streaming</option><option value="Salidas">Salidas</option><option value="Viajes">Viajes</option><option value="Cine">Cine</option><option value="Juegos">Juegos</option>
         </optgroup>
-        <optgroup label="👤 Personal">
+        <optgroup label="Personal">
           <option value="Ropa y calzado">Ropa y calzado</option><option value="Belleza y cuidado personal">Belleza y cuidado personal</option><option value="Regalos">Regalos</option><option value="Préstamos a otros">Préstamos a otros</option>
         </optgroup>
-        <optgroup label="💰 Finanzas">
+        <optgroup label="Finanzas">
           <option value="Deudas">Deudas</option><option value="Ahorro">Ahorro</option><option value="Seguros">Seguros</option><option value="Impuestos">Impuestos</option>
         </optgroup>
-        <optgroup label="👨‍👩‍👧 Familia">
+        <optgroup label="Familia">
           <option value="Ayuda a padres">Ayuda a padres</option><option value="Hijos">Hijos</option><option value="Otros familiares">Otros familiares</option>
         </optgroup>
-        <optgroup label="💼 Trabajo">
+        <optgroup label="Trabajo">
           <option value="Herramientas trabajo">Herramientas trabajo</option><option value="Suscripciones trabajo">Suscripciones trabajo</option><option value="Otro">Otro</option>
         </optgroup>
       </select>
@@ -365,16 +365,16 @@
     <div class="two-col">
       <div class="card">
         <p class="section-title">Resumen por mes</p>
-        <div id="historial-list"><div class="empty-state"><div class="empty-icon">📆</div>Sin datos de meses anteriores</div></div>
+        <div id="historial-list"><div class="empty-state"><i data-lucide="calendar-days" style="width:32px;height:32px;color:var(--text3);margin-bottom:10px;display:block;margin-left:auto;margin-right:auto;"></i>Sin datos de meses anteriores</div></div>
       </div>
       <div class="card">
         <p class="section-title">Detalle del mes seleccionado</p>
-        <div id="historial-detail"><div class="empty-state"><div class="empty-icon">👈</div>Selecciona un mes</div></div>
+        <div id="historial-detail"><div class="empty-state"><i data-lucide="mouse-pointer-click" style="width:32px;height:32px;color:var(--text3);margin-bottom:10px;display:block;margin-left:auto;margin-right:auto;"></i>Selecciona un mes</div></div>
       </div>
     </div>
     <div class="card" style="margin-top:0;">
       <p class="section-title">Gastos del mes seleccionado</p>
-      <div id="historial-gastos-table"><div class="empty-state"><div class="empty-icon">📋</div>Selecciona un mes para ver gastos</div></div>
+      <div id="historial-gastos-table"><div class="empty-state"><i data-lucide="clipboard-list" style="width:32px;height:32px;color:var(--text3);margin-bottom:10px;display:block;margin-left:auto;margin-right:auto;"></i>Selecciona un mes para ver gastos</div></div>
     </div>
   </div>
 
@@ -397,26 +397,26 @@
 
     <!-- Tendencia ingresos vs gastos -->
     <div class="card" style="margin-bottom:14px;">
-      <p class="section-title">📈 Ingresos vs Gastos</p>
+      <p class="section-title"><i data-lucide="trending-up" style="color:var(--accent);width:15px;height:15px;"></i> Ingresos vs Gastos</p>
       <div id="chart-ingresos-gastos" style="overflow-x:auto;"></div>
       <div id="chart-ingresos-gastos-leyenda" style="display:flex;flex-wrap:wrap;gap:10px;margin-top:12px;"></div>
     </div>
 
     <!-- Libertad financiera -->
     <div class="card" style="background:linear-gradient(135deg,rgba(16,185,129,0.06),rgba(14,165,233,0.04));border-color:rgba(16,185,129,0.22);margin-bottom:14px;">
-      <p class="section-title" style="color:var(--success);">🗓️ Día de libertad financiera</p>
+      <p class="section-title" style="color:var(--success);"><i data-lucide="calendar-check" style="color:var(--success);width:15px;height:15px;"></i> Día de libertad financiera</p>
       <div id="libertad-detail"></div>
     </div>
 
     <!-- Gastos: categoría + fuente -->
     <div class="two-col" style="margin-bottom:14px;">
       <div class="card">
-        <p class="section-title">🍽 Gastos por categoría</p>
+        <p class="section-title"><i data-lucide="pie-chart" style="color:var(--accent);width:15px;height:15px;"></i> Gastos por categoría</p>
         <div id="chart-gastos-categorias" style="overflow-x:auto;"></div>
         <div id="chart-gastos-leyenda" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;"></div>
       </div>
       <div class="card">
-        <p class="section-title">💼 Gastos por fuente</p>
+        <p class="section-title"><i data-lucide="briefcase" style="color:var(--purple);width:15px;height:15px;"></i> Gastos por fuente</p>
         <div id="chart-gastos-fuente"></div>
       </div>
     </div>
@@ -424,11 +424,11 @@
     <!-- Deudas -->
     <div class="two-col" style="margin-bottom:14px;">
       <div class="card">
-        <p class="section-title">📋 Deudas por tasa</p>
+        <p class="section-title"><i data-lucide="file-text" style="color:var(--danger);width:15px;height:15px;"></i> Deudas por tasa</p>
         <div id="dash-deudas-tasa"></div>
       </div>
       <div class="card">
-        <p class="section-title">✅ Estado de deudas</p>
+        <p class="section-title"><i data-lucide="check-circle-2" style="color:var(--success);width:15px;height:15px;"></i> Estado de deudas</p>
         <div id="dash-deudas-estado"></div>
       </div>
     </div>
@@ -436,7 +436,7 @@
     <!-- Proyección de saldos -->
     <div class="card" style="margin-bottom:14px;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:8px;">
-        <p class="section-title" style="margin-bottom:0;">📉 Proyección de saldos</p>
+        <p class="section-title" style="margin-bottom:0;"><i data-lucide="trending-down" style="color:var(--accent);width:15px;height:15px;"></i> Proyección de saldos</p>
         <select id="proj-tipo-sel" class="filter-select" onchange="renderAnalisis()">
           <option value="individual">Por deuda</option>
           <option value="total" selected>Saldo total</option>
@@ -449,18 +449,18 @@
     <!-- Préstamos -->
     <div class="two-col" style="margin-bottom:14px;">
       <div class="card">
-        <p class="section-title">🤝 Préstamos: cobrado vs pendiente</p>
+        <p class="section-title"><i data-lucide="handshake" style="color:var(--warning);width:15px;height:15px;"></i> Préstamos: cobrado vs pendiente</p>
         <div id="dash-prestamos-dona"></div>
       </div>
       <div class="card">
-        <p class="section-title">📜 Últimos préstamos</p>
+        <p class="section-title"><i data-lucide="clipboard-list" style="color:var(--warning);width:15px;height:15px;"></i> Últimos préstamos</p>
         <div id="dash-prestamos-lista"></div>
       </div>
     </div>
 
     <!-- Abonos -->
     <div class="card" style="margin-bottom:14px;">
-      <p class="section-title">💸 Historial de abonos</p>
+      <p class="section-title"><i data-lucide="piggy-bank" style="color:var(--success);width:15px;height:15px;"></i> Historial de abonos</p>
       <div class="metric-grid" id="dash-abonos-metrics" style="margin-bottom:14px;"></div>
       <div id="dash-abonos-lista"></div>
     </div>
@@ -469,7 +469,7 @@
 
   <div id="tab-estrategia" class="section">
     <div class="card" style="margin-bottom:14px;">
-      <p class="section-title">⚙️ Configurar simulación</p>
+      <p class="section-title"><i data-lucide="settings" style="color:var(--accent);width:15px;height:15px;"></i> Configurar simulación</p>
       <div class="input-grid" style="grid-template-columns:1fr 1fr;gap:12px;">
         <div class="input-group">
           <label>Dinero extra por mes ($)</label>
@@ -558,7 +558,7 @@
 <!-- Modal: Cobro de préstamo -->
 <div class="modal-overlay" id="cobro-prestamo-modal">
   <div class="modal">
-    <div class="modal-title" style="color:var(--success);">💰 Cobrar préstamo</div>
+    <div class="modal-title" style="color:var(--success);display:flex;align-items:center;gap:8px;"><i data-lucide="circle-dollar-sign" style="color:var(--success);width:20px;height:20px;"></i> Cobrar préstamo</div>
     <p style="font-size:13px;color:var(--text3);margin-bottom:18px;">
       <strong id="cobro-prestamo-nombre"></strong> te devolvió <strong id="cobro-prestamo-monto" style="color:var(--success);"></strong>
     </p>
@@ -608,16 +608,16 @@
         <div class="input-group"><label>Monto ($)</label><input type="number" id="eg-monto"/></div>
         <div class="input-group"><label>Categoría</label>
           <select id="eg-categoria">
-            <optgroup label="🍽 Alimentación"><option>Mercado</option><option>Restaurantes</option><option>Domicilios</option><option>Snacks y onces</option><option>Bebidas</option></optgroup>
-            <optgroup label="🏠 Vivienda"><option>Arriendo</option><option>Luz</option><option>Gas</option><option>Agua</option><option>Internet y TV</option><option>Mantenimiento hogar</option><option>Mascotas</option></optgroup>
-            <optgroup label="🚗 Transporte"><option>Gasolina</option><option>Transporte público</option><option>Mantenimiento vehículo</option><option>Parqueadero</option><option>Peajes</option></optgroup>
-            <optgroup label="💊 Salud"><option>Médico y citas</option><option>Medicamentos</option><option>Gym y deporte</option><option>Óptica</option><option>Odontología</option></optgroup>
-            <optgroup label="📚 Educación"><option>Cursos</option><option>Libros</option><option>Útiles</option><option>Matrícula</option><option>Academia hijos</option></optgroup>
-            <optgroup label="🎬 Entretenimiento"><option>Streaming</option><option>Salidas</option><option>Viajes</option><option>Cine</option><option>Juegos</option></optgroup>
-            <optgroup label="👤 Personal"><option>Ropa y calzado</option><option>Belleza y cuidado personal</option><option>Regalos</option><option>Préstamos a otros</option></optgroup>
-            <optgroup label="💰 Finanzas"><option>Deudas</option><option>Ahorro</option><option>Seguros</option><option>Impuestos</option></optgroup>
-            <optgroup label="👨‍👩‍👧 Familia"><option>Ayuda a padres</option><option>Hijos</option><option>Otros familiares</option></optgroup>
-            <optgroup label="💼 Trabajo"><option>Herramientas trabajo</option><option>Suscripciones trabajo</option><option>Otro</option></optgroup>
+            <optgroup label="Alimentación"><option>Mercado</option><option>Restaurantes</option><option>Domicilios</option><option>Snacks y onces</option><option>Bebidas</option></optgroup>
+            <optgroup label="Vivienda"><option>Arriendo</option><option>Luz</option><option>Gas</option><option>Agua</option><option>Internet y TV</option><option>Mantenimiento hogar</option><option>Mascotas</option></optgroup>
+            <optgroup label="Transporte"><option>Gasolina</option><option>Transporte público</option><option>Mantenimiento vehículo</option><option>Parqueadero</option><option>Peajes</option></optgroup>
+            <optgroup label="Salud"><option>Médico y citas</option><option>Medicamentos</option><option>Gym y deporte</option><option>Óptica</option><option>Odontología</option></optgroup>
+            <optgroup label="Educación"><option>Cursos</option><option>Libros</option><option>Útiles</option><option>Matrícula</option><option>Academia hijos</option></optgroup>
+            <optgroup label="Entretenimiento"><option>Streaming</option><option>Salidas</option><option>Viajes</option><option>Cine</option><option>Juegos</option></optgroup>
+            <optgroup label="Personal"><option>Ropa y calzado</option><option>Belleza y cuidado personal</option><option>Regalos</option><option>Préstamos a otros</option></optgroup>
+            <optgroup label="Finanzas"><option>Deudas</option><option>Ahorro</option><option>Seguros</option><option>Impuestos</option></optgroup>
+            <optgroup label="Familia"><option>Ayuda a padres</option><option>Hijos</option><option>Otros familiares</option></optgroup>
+            <optgroup label="Trabajo"><option>Herramientas trabajo</option><option>Suscripciones trabajo</option><option>Otro</option></optgroup>
           </select>
         </div>
       </div>
@@ -645,7 +645,7 @@
 
 <div class="modal-overlay" id="pagar-cuota-modal">
   <div class="modal" style="max-width:420px;">
-    <div class="modal-title" style="color:var(--purple);">💳 Pagar cuota de deuda</div>
+    <div class="modal-title" style="color:var(--purple);display:flex;align-items:center;gap:8px;"><i data-lucide="credit-card" style="color:var(--purple);width:20px;height:20px;"></i> Pagar cuota de deuda</div>
     <p style="font-size:13px;color:var(--text3);margin-bottom:18px;line-height:1.55;">Selecciona la deuda cuya cuota mensual vas a registrar como gasto.</p>
     <div class="input-group" style="margin-bottom:14px;">
       <label>Deuda</label>
