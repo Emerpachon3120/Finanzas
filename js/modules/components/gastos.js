@@ -83,16 +83,33 @@ function renderGastos() {
   document.getElementById('num-gastos').textContent = allGastos.length;
 
   const catTotals = {};
-  allGastos.forEach(g => { catTotals[g.categoria] = (catTotals[g.categoria] || 0) + g.monto; });
-  const barEl = document.getElementById('cat-bar');
-  const legEl = document.getElementById('cat-legend');
-  barEl.innerHTML = ''; legEl.innerHTML = '';
-  Object.entries(catTotals).sort((a, b) => b[1] - a[1]).forEach(([cat, val]) => {
-    const w   = Math.round(val / total * 100);
-    const col = catColors[cat] || '#94a3b8';
-    barEl.innerHTML += `<div class="bar-seg" style="width:${w}%;background:${col};" title="${cat}: ${fmt(val)}"></div>`;
-    legEl.innerHTML += `<span class="legend-item"><span class="legend-dot" style="background:${col};"></span>${cat} ${fmt(val)}</span>`;
-  });
+    allGastos.forEach(g => { catTotals[g.categoria] = (catTotals[g.categoria] || 0) + g.monto; });
+    const barEl = document.getElementById('cat-bar');
+    const legEl = document.getElementById('cat-legend');
+    barEl.innerHTML = ''; legEl.innerHTML = '';
+
+    const catsOrdenadas = Object.entries(catTotals).sort((a, b) => b[1] - a[1]);
+    const topCats  = catsOrdenadas.slice(0, 4);
+    const restoCats = catsOrdenadas.slice(4);
+
+    catsOrdenadas.forEach(([cat, val]) => {
+      const w   = Math.round(val / total * 100);
+      const col = catColors[cat] || '#94a3b8';
+      barEl.innerHTML += `<div class="bar-seg" style="width:${w}%;background:${col};" title="${cat}: ${fmt(val)}"></div>`;
+    });
+
+    topCats.forEach(([cat, val]) => {
+      const col = catColors[cat] || '#94a3b8';
+      legEl.innerHTML += `<span class="legend-item"><span class="legend-dot" style="background:${col};"></span>${cat} ${fmt(val)}</span>`;
+    });
+
+    if (restoCats.length) {
+      const dotsHtml = restoCats.map(([cat, val]) => {
+        const col = catColors[cat] || '#94a3b8';
+        return `<span style="width:8px;height:8px;border-radius:2px;background:${col};display:inline-block;" title="${cat}: ${fmt(val)}"></span>`;
+      }).join('');
+      legEl.innerHTML += `<span class="legend-item" style="display:flex;align-items:center;gap:3px;">+${restoCats.length} más ${dotsHtml}</span>`;
+    }
 
   const tbody = document.getElementById('gastos-body');
   tbody.innerHTML = '';
