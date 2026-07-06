@@ -113,6 +113,7 @@ function savePrestamo() {
   const monto   = parseFloat(document.getElementById('pre-monto').value);
   const fuente  = document.getElementById('pre-fuente').value;
   const nota    = document.getElementById('pre-nota').value.trim();
+  const registrarGasto = document.getElementById('pre-registrar-gasto').checked;
   if (!persona || !monto) { showToast('Completa persona y monto', 'danger'); return; }
 
   if (editingPrestamoId) {
@@ -134,23 +135,25 @@ function savePrestamo() {
     prestamos.push(nuevo);
     fbGuardarPrestamo(nuevo);
 
-    // Registrar automáticamente como gasto del mes actual
-    const key = mkKey(mesActual);
-    if (!gastosPorMes[key]) gastosPorMes[key] = [];
-    const gasto = {
-      id: g(),
-      concepto: `Préstamo a ${persona}`,
-      monto,
-      categoria: 'Préstamos a otros',
-      fuente,
-      nota: nota || `Préstamo registrado`,
-      ts: Date.now(),
-      mes: key,
-    };
-    gastosPorMes[key].push(gasto);
-    fbGuardarGasto(gasto);
-
-    showToast(`Préstamo a "${persona}" registrado ✓`, 'success');
+    if (registrarGasto) {
+      const key = mkKey(mesActual);
+      if (!gastosPorMes[key]) gastosPorMes[key] = [];
+      const gasto = {
+        id: g(),
+        concepto: `Préstamo a ${persona}`,
+        monto,
+        categoria: 'Préstamos a otros',
+        fuente,
+        nota: nota || `Préstamo registrado`,
+        ts: Date.now(),
+        mes: key,
+      };
+      gastosPorMes[key].push(gasto);
+      fbGuardarGasto(gasto);
+      showToast(`Préstamo a "${persona}" registrado ✓`, 'success');
+    } else {
+      showToast(`Préstamo a "${persona}" registrado (sin afectar gastos) ✓`, 'success');
+    }
   }
 
   closePrestamoModal();

@@ -547,6 +547,12 @@
       <div class="input-group"><label>Monto ($)</label><input type="number" id="pre-monto" placeholder="Ej: 50000"/></div>
       <div class="input-group"><label>Fuente (sueldo del que sale)</label><select id="pre-fuente"></select></div>
       <div class="input-group"><label>Nota (opcional)</label><input type="text" id="pre-nota" placeholder="Ej: Para el mercado..."/></div>
+      <div class="input-group">
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+          <input type="checkbox" id="pre-registrar-gasto" checked style="width:16px;height:16px;cursor:pointer;accent-color:var(--accent);"/>
+          <span style="text-transform:none;font-size:13px;color:var(--text2);">Registrar como gasto de este mes</span>
+        </label>
+      </div>
     </div>
     <div class="modal-actions">
       <button class="btn-secondary" onclick="closePrestamoModal()">Cancelar</button>
