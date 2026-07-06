@@ -28,13 +28,14 @@ async function cargarDesdeFirebase() {
   try {
     showToast('🔗 Cargando datos...', 'info');
 
-    const [snapS, snapD, snapG, snapA, snapP, snapI] = await Promise.all([
+    const [snapS, snapD, snapG, snapA, snapP, snapI, snapE] = await Promise.all([
       userCollection('sueldos').get(),
       userCollection('deudas').get(),
       userCollection('gastos').get(),
       userCollection('abonos').get(),
       userCollection('prestamos').get(),
       userCollection('ingresos_recibidos').get(),
+      userCollection('ingresos_extra').get(),
     ]);
 
     sueldos = snapS.docs.map(d => d.data());
@@ -70,6 +71,14 @@ async function cargarDesdeFirebase() {
       ingresosRecibidos[data.mes][data.sueldoId] = data.recibido;
     });
 
+    // Ingresos extra por mes (ej: préstamos cobrados)
+    ingresosExtra = {};
+    snapE.docs.forEach(d => {
+      const data = d.data();
+      if (!ingresosExtra[data.mes]) ingresosExtra[data.mes] = [];
+      ingresosExtra[data.mes].push(data);
+    });
+
     _sincronizarContadorIds();
     actualizarTodo();
 
@@ -86,13 +95,14 @@ async function guardarEnFirebase() {
     showToast('☁️ Guardando...', 'info');
     const batch = db.batch();
 
-    const [snapS, snapD, snapG, snapA, snapP, snapI] = await Promise.all([
+    const [snapS, snapD, snapG, snapA, snapP, snapI, snapE] = await Promise.all([
       userCollection('sueldos').get(),
       userCollection('deudas').get(),
       userCollection('gastos').get(),
       userCollection('abonos').get(),
       userCollection('prestamos').get(),
       userCollection('ingresos_recibidos').get(),
+      userCollection('ingresos_extra').get(),
     ]);
 
     snapS.docs.forEach(d => batch.delete(d.ref));
@@ -120,6 +130,11 @@ async function guardarEnFirebase() {
       });
     });
 
+    snapE.docs.forEach(d => batch.delete(d.ref));
+    Object.entries(ingresosExtra).forEach(([mes, lista]) => {
+      lista.forEach(e => batch.set(userCollection('ingresos_extra').doc(String(e.id)), { ...e, mes }));
+    });
+
     await batch.commit();
     showToast('☁️ Todo guardado correctamente', 'success');
   } catch (err) {
@@ -135,6 +150,7 @@ function _sincronizarContadorIds() {
     ...abonoHistorial.map(x => x.id),
     ...prestamos.map(x => x.id),
     ...Object.values(gastosPorMes).flat().map(x => x.id),
+    ...Object.values(ingresosExtra).flat().map(x => x.id),
   ].filter(id => typeof id === 'number' && isFinite(id));
 
   if (todosLosIds.length > 0) {
@@ -190,4 +206,14 @@ async function fbEliminarPrestamo(id) {
 async function fbGuardarIngresoRecibido(mes, sueldoId, recibido) {
   const docId = `${mes}_${sueldoId}`;
   await userCollection('ingresos_recibidos').doc(docId).set({ mes, sueldoId, recibido });
+}
+
+// ── Ingresos extra (ej: préstamos cobrados) ───────────────────────
+
+async function fbGuardarIngresoExtra(e) {
+  await userCollection('ingresos_extra').doc(String(e.id)).set(e);
+}
+
+async function fbEliminarIngresoExtra(id) {
+  await userCollection('ingresos_extra').doc(String(id)).delete();
 }

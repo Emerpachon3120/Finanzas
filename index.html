@@ -498,6 +498,50 @@
   </div>
 </div>
 
+<!-- Modal: Cobro de préstamo -->
+<div class="modal-overlay" id="cobro-prestamo-modal">
+  <div class="modal">
+    <div class="modal-title" style="color:var(--success);">💰 Cobrar préstamo</div>
+    <p style="font-size:13px;color:var(--text3);margin-bottom:18px;">
+      <strong id="cobro-prestamo-nombre"></strong> te devolvió <strong id="cobro-prestamo-monto" style="color:var(--success);"></strong>
+    </p>
+
+    <div class="modal-grid">
+      <div class="input-group">
+        <label>¿Cómo te pagaron?</label>
+        <select id="cobro-metodo" onchange="onCobroMetodoChange()">
+          <option value="efectivo">Efectivo</option>
+          <option value="transferencia">Transferencia</option>
+        </select>
+      </div>
+
+      <div class="input-group" id="cobro-cuenta-wrap" style="display:none;">
+        <label>¿A qué cuenta llegó?</label>
+        <input type="text" id="cobro-cuenta" placeholder="Ej: Nequi, Bancolombia..."/>
+      </div>
+
+      <div class="input-group">
+        <label>¿Qué haces con el dinero?</label>
+        <select id="cobro-destino" onchange="onCobroDestinoChange()">
+          <option value="nada">Solo marcar como cobrado</option>
+          <option value="ingreso">Sumarlo a una fuente de ingreso</option>
+          <option value="abono">Abonar a una deuda</option>
+        </select>
+      </div>
+
+      <div class="input-group" id="cobro-fuente-wrap" style="display:none;">
+        <label>Fuente de ingreso</label>
+        <select id="cobro-fuente"></select>
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeCobroPrestamoModal()">Cancelar</button>
+      <button class="btn-success" onclick="confirmarCobroPrestamo()">✓ Confirmar cobro</button>
+    </div>
+  </div>
+</div>
+
 <div class="modal-overlay" id="gasto-edit-modal">
   <div class="modal">
     <div class="modal-title">Editar gasto</div>

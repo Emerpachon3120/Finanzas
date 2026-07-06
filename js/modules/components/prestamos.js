@@ -168,17 +168,86 @@ function deletePrestamo(id) {
 }
 
 function cobrarPrestamo(id) {
+  editingPrestamoId = id;
   const p = prestamos.find(x => x.id === id);
-  openConfirm(
-    '¿Marcar como cobrado?',
-    `Confirmas que "${p.persona}" te devolvió ${fmt(p.monto)}.`,
-    '✓ Sí, cobrado', 'btn-success',
-    () => {
-      p.pagado = true;
-      p.fechaCobro = new Date().toLocaleDateString('es-CO');
-      fbGuardarPrestamo(p);
-      renderPrestamos();
-      showToast(`🎉 Préstamo a "${p.persona}" cobrado`, 'success');
-    }, '💰'
-  );
+  if (!p) return;
+
+  document.getElementById('cobro-prestamo-nombre').textContent = p.persona;
+  document.getElementById('cobro-prestamo-monto').textContent  = fmt(p.monto);
+
+  document.getElementById('cobro-metodo').value = 'efectivo';
+  document.getElementById('cobro-cuenta-wrap').style.display = 'none';
+  document.getElementById('cobro-cuenta').value = '';
+
+  document.getElementById('cobro-destino').value = 'nada';
+  document.getElementById('cobro-fuente-wrap').style.display = 'none';
+
+  const selFuente = document.getElementById('cobro-fuente');
+  selFuente.innerHTML = '';
+  sueldos.forEach(s => {
+    const o = document.createElement('option');
+    o.value = s.id; o.textContent = s.nombre;
+    selFuente.appendChild(o);
+  });
+
+  document.getElementById('cobro-prestamo-modal').classList.add('active');
+}
+
+function closeCobroPrestamoModal() {
+  document.getElementById('cobro-prestamo-modal').classList.remove('active');
+}
+
+function onCobroMetodoChange() {
+  const metodo = document.getElementById('cobro-metodo').value;
+  document.getElementById('cobro-cuenta-wrap').style.display = metodo === 'transferencia' ? 'block' : 'none';
+}
+
+function onCobroDestinoChange() {
+  const destino = document.getElementById('cobro-destino').value;
+  document.getElementById('cobro-fuente-wrap').style.display = destino === 'ingreso' ? 'block' : 'none';
+
+  if (destino === 'abono') {
+    closeCobroPrestamoModal();
+    showToast('💡 Ve a la pestaña Abonos para registrar el pago a la deuda', 'info');
+  }
+}
+
+function confirmarCobroPrestamo() {
+  const p = prestamos.find(x => x.id === editingPrestamoId);
+  if (!p) return;
+
+  const metodo  = document.getElementById('cobro-metodo').value;
+  const cuenta  = document.getElementById('cobro-cuenta').value.trim();
+  const destino = document.getElementById('cobro-destino').value;
+
+  p.pagado     = true;
+  p.fechaCobro = new Date().toLocaleDateString('es-CO');
+  p.metodoPago = metodo;
+  p.cuentaPago = metodo === 'transferencia' ? cuenta : '';
+  fbGuardarPrestamo(p);
+
+  if (destino === 'ingreso') {
+    const fuenteId = parseInt(document.getElementById('cobro-fuente').value);
+    const fuente   = sueldos.find(s => s.id === fuenteId);
+    const mes      = mkKey(mesActual);
+
+    const nuevoIngreso = {
+      id:      g(),
+      fuenteId,
+      fuenteNombre: fuente ? fuente.nombre : '',
+      monto:   p.monto,
+      concepto: `Cobro préstamo: ${p.persona}`,
+      mes,
+      ts: Date.now(),
+    };
+    if (!ingresosExtra[mes]) ingresosExtra[mes] = [];
+    ingresosExtra[mes].push(nuevoIngreso);
+    fbGuardarIngresoExtra(nuevoIngreso);
+  }
+
+  closeCobroPrestamoModal();
+  renderPrestamos();
+  if (typeof renderSueldos === 'function') renderSueldos();
+  if (typeof renderResumen === 'function') renderResumen();
+  showToast(`🎉 Préstamo a "${p.persona}" cobrado ✓`, 'success');
 }

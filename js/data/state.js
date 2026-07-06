@@ -10,6 +10,7 @@ var gastosPorMes  = {};
 var abonoHistorial = [];
 var prestamos = [];
 var ingresosRecibidos = {}; // { "2026-07": { sueldoId: true/false } }
+var ingresosExtra = {}; // { "2026-07": [{ id, fuenteId, monto, concepto, ts }] }
 
 // ── Sesión / tiempo ───────────────────────────────────────────────
 var now       = new Date();
