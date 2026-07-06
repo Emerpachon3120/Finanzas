@@ -103,32 +103,17 @@ function renderGastos() {
   }
   gastos.forEach(g => {
       const col = catColors[g.categoria] || '#94a3b8';
-      tbody.innerHTML += `<tr class="gasto-row">
+      tbody.innerHTML += `<tr>
         <td>
-          <div class="gasto-flip-container" onclick="this.classList.toggle('flipped')">
-            <div class="gasto-flip-inner">
-
-              <div class="gasto-flip-front">
-                <div class="gasto-card-info">
-                  <div class="gasto-card-concepto">${g.concepto}</div>
-                  <div class="gasto-card-fuente">${g.fuente}</div>
-                </div>
-                <div class="gasto-card-right">
-                  <span class="badge" style="background:${col}18;color:${col};border:1px solid ${col}30;">${g.categoria}</span>
-                  <div class="gasto-card-monto">${fmt(g.monto)}</div>
-                </div>
-              </div>
-
-              <div class="gasto-flip-back">
-                <div class="gasto-card-nota">${g.nota ? '📝 ' + g.nota : 'Sin nota adicional'}</div>
-                <div class="gasto-card-actions">
-                  <button class="btn-edit" onclick="event.stopPropagation();editGasto(${g.id})">✏ Editar</button>
-                  <button class="btn-delete" onclick="event.stopPropagation();deleteGasto(${g.id})">× Eliminar</button>
-                </div>
-              </div>
-
-            </div>
-          </div>
+          <div style="font-weight:700;color:var(--text);font-size:13px;">${g.concepto}</div>
+          <div style="font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace;">${g.fuente}</div>
+        </td>
+        <td><span class="badge" style="background:${col}18;color:${col};border:1px solid ${col}30;">${g.categoria}</span></td>
+        <td style="font-weight:700;font-family:'JetBrains Mono',monospace;color:var(--text);">${fmt(g.monto)}</td>
+        <td style="font-size:11px;color:var(--text3);">${g.nota || '—'}</td>
+        <td>
+          <button class="btn-edit" onclick="editGasto(${g.id})">✏</button>
+          <button class="btn-delete" onclick="deleteGasto(${g.id})">×</button>
         </td>
       </tr>`;
     });

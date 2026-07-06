@@ -147,25 +147,33 @@
     width: 100%;
   }
 
-  /* ── Tabla de gastos en móvil: usar flip cards ──────────────────── */
-  .expense-table thead {
-    display: none;
-  }
-  .expense-table, .expense-table tbody, .expense-table tr, .expense-table td {
-    display: block;
-    width: 100%;
-  }
-  .expense-table tr {
-    border: 1.5px solid var(--border);
-    border-radius: 14px;
-    margin-bottom: 10px;
-    padding: 14px 16px;
-    background: var(--bg);
-  }
-  .expense-table td {
-    padding: 0;
-    border: none;
-  }
+  /* ── Tabla de gastos en móvil: tarjetas apiladas (sin JS) ─────────── */
+    .expense-table thead {
+      display: none;
+    }
+    .expense-table, .expense-table tbody, .expense-table tr, .expense-table td {
+      display: block;
+      width: 100%;
+    }
+    .expense-table tr {
+      border: 1.5px solid var(--border);
+      border-radius: 14px;
+      margin-bottom: 10px;
+      padding: 14px 16px;
+      background: var(--bg);
+    }
+    .expense-table td {
+      padding: 3px 0;
+      border: none;
+    }
+    .expense-table td:last-child {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 8px;
+      padding-top: 8px;
+      border-top: 1px solid var(--border);
+    }
 
   /* ── Modal ───────────────────────────────────────────────────────── */
   .modal {
