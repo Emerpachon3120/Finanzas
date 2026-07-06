@@ -100,8 +100,17 @@ body {
   border-radius: 10px;
   transition: all 0.2s ease;
   white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
+.tab i,
+.tab svg {
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
+}
 .tab:hover { color: var(--text2); background: var(--bg3); }
 .tab.active {
   background: #fff;
