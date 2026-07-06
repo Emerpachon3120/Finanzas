@@ -253,43 +253,55 @@ function renderProyeccionSaldos() {
     return;
   }
 
-  const maxMesesProj = Math.min(60, Math.max(...activas.map(d => {
+  // Calcular saldo total en un mes dado
+  function saldoEnMes(mi) {
+    return activas.reduce((sum, d) => {
+      const tm = d.tasa > 0 ? Math.pow(1 + d.tasa / 100, 1 / 12) - 1 : 0;
+      let s = d.saldo;
+      for (let m = 0; m < mi; m++) s = Math.max(0, s - (d.cuota - s * tm));
+      return sum + s;
+    }, 0);
+  }
+
+  function saldoDeudaEnMes(d, mi) {
+    const tm = d.tasa > 0 ? Math.pow(1 + d.tasa / 100, 1 / 12) - 1 : 0;
+    let s = d.saldo;
+    for (let m = 0; m < mi; m++) s = Math.max(0, s - (d.cuota - s * tm));
+    return s;
+  }
+
+  // Encontrar cuándo se termina de pagar todo (máximo 60 meses)
+  const mesesFinal = Math.min(60, Math.max(...activas.map(d => {
     const tm = d.tasa > 0 ? Math.pow(1 + d.tasa / 100, 1 / 12) - 1 : 0;
     let s = d.saldo, m = 0;
     while (s > 0 && m < 60) { s = Math.max(0, s - (d.cuota - s * tm)); m++; }
     return m;
   })));
 
-  const mesesProj = Array.from({ length: maxMesesProj + 1 }, (_, i) => {
-    const d = new Date(); d.setMonth(d.getMonth() + i);
+  // Hitos: hoy, 3m, 6m, 1a, 1a6m, 2a, ... hasta el final
+  const hitos = [0, 3, 6, 12, 18, 24, 36, 48, 60].filter(h => h <= mesesFinal);
+  if (hitos[hitos.length - 1] !== mesesFinal) hitos.push(mesesFinal);
+
+  const labels = hitos.map(mi => {
+    if (mi === 0) return 'Hoy';
+    const d = new Date(); d.setMonth(d.getMonth() + mi);
     return d.toLocaleDateString('es-CO', { month: 'short', year: '2-digit' });
   });
 
   let seriesProj, coloresProj;
 
   if (tipo === 'individual') {
-    seriesProj = activas.map(d => {
-      const tm = d.tasa > 0 ? Math.pow(1 + d.tasa / 100, 1 / 12) - 1 : 0;
-      let s = d.saldo;
-      const vals = [s];
-      for (let m = 0; m < maxMesesProj; m++) { s = Math.max(0, s - (d.cuota - s * tm)); vals.push(s); }
-      return { nombre: d.nombre, valores: vals };
-    });
+    seriesProj = activas.map(d => ({
+      nombre: d.nombre,
+      valores: hitos.map(mi => saldoDeudaEnMes(d, mi)),
+    }));
     coloresProj = ['#0ea5e9','#8b5cf6','#f59e0b','#10b981','#ef4444','#ec4899','#06b6d4'];
   } else {
-    const vals = Array.from({ length: maxMesesProj + 1 }, (_, mi) =>
-      activas.reduce((sum, d) => {
-        const tm = d.tasa > 0 ? Math.pow(1 + d.tasa / 100, 1 / 12) - 1 : 0;
-        let s = d.saldo;
-        for (let m = 0; m < mi; m++) s = Math.max(0, s - (d.cuota - s * tm));
-        return sum + s;
-      }, 0)
-    );
-    seriesProj  = [{ nombre: 'Saldo total', valores: vals }];
+    seriesProj  = [{ nombre: 'Saldo total', valores: hitos.map(mi => saldoEnMes(mi)) }];
     coloresProj = ['#0ea5e9'];
   }
 
-  svgLineChart('chart-proyeccion', mesesProj, seriesProj, coloresProj);
+  svgLineChart('chart-proyeccion', labels, seriesProj, coloresProj);
 
   const legPEl = document.getElementById('chart-proj-leyenda');
   if (legPEl) legPEl.innerHTML = seriesProj.map((s, i) => `
