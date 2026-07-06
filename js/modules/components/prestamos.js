@@ -77,7 +77,7 @@ function renderPrestamos() {
 function openPrestamoModal(id = null) {
   editingPrestamoId = id;
   const sel = document.getElementById('pre-fuente');
-  document.getElementById('pre-registrar-gasto').value = 'si';
+  document.getElementById('pre-registrar-gasto').checked = true;
     document.getElementById('pre-fuente-wrap').style.display = 'block';
 
   sel.innerHTML = '';
@@ -116,7 +116,7 @@ function savePrestamo() {
   const monto   = parseFloat(document.getElementById('pre-monto').value);
   const fuente  = document.getElementById('pre-fuente').value;
   const nota    = document.getElementById('pre-nota').value.trim();
-  const registrarGasto = document.getElementById('pre-registrar-gasto').value === 'si';
+  const registrarGasto = document.getElementById('pre-registrar-gasto').checked;
   if (!persona || !monto) { showToast('Completa persona y monto', 'danger'); return; }
 
   if (editingPrestamoId) {
@@ -164,8 +164,8 @@ function savePrestamo() {
 }
 
 function onPreRegistrarGastoChange() {
-  const val = document.getElementById('pre-registrar-gasto').value;
-  document.getElementById('pre-fuente-wrap').style.display = val === 'si' ? 'block' : 'none';
+  const checked = document.getElementById('pre-registrar-gasto').checked;
+  document.getElementById('pre-fuente-wrap').style.display = checked ? 'block' : 'none';
 }
 
 function deletePrestamo(id) {
