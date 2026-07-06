@@ -77,6 +77,9 @@ function renderPrestamos() {
 function openPrestamoModal(id = null) {
   editingPrestamoId = id;
   const sel = document.getElementById('pre-fuente');
+  document.getElementById('pre-registrar-gasto').value = 'si';
+    document.getElementById('pre-fuente-wrap').style.display = 'block';
+
   sel.innerHTML = '';
   sueldos.forEach(s => {
     const o = document.createElement('option');
@@ -113,7 +116,7 @@ function savePrestamo() {
   const monto   = parseFloat(document.getElementById('pre-monto').value);
   const fuente  = document.getElementById('pre-fuente').value;
   const nota    = document.getElementById('pre-nota').value.trim();
-  const registrarGasto = document.getElementById('pre-registrar-gasto').checked;
+  const registrarGasto = document.getElementById('pre-registrar-gasto').value === 'si';
   if (!persona || !monto) { showToast('Completa persona y monto', 'danger'); return; }
 
   if (editingPrestamoId) {
@@ -158,6 +161,11 @@ function savePrestamo() {
 
   closePrestamoModal();
   renderPrestamos();
+}
+
+function onPreRegistrarGastoChange() {
+  const val = document.getElementById('pre-registrar-gasto').value;
+  document.getElementById('pre-fuente-wrap').style.display = val === 'si' ? 'block' : 'none';
 }
 
 function deletePrestamo(id) {
