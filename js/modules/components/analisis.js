@@ -60,15 +60,26 @@ function renderLibertad(contenedorId) {
     }).join('')}`;
 }
 function _svgDonut(data, size = 160) {
-  // data: [{ label, value, color }]
   const total = data.reduce((a, d) => a + d.value, 0);
   if (total === 0) return `<div class="empty-state" style="padding:20px 0;"><div class="empty-icon">📊</div>Sin datos</div>`;
 
   const r = size / 2 - 10;
   const cx = size / 2, cy = size / 2;
-  let anguloAcum = -90;
+  const conDatos = data.filter(d => d.value > 0);
 
-  const segmentos = data.filter(d => d.value > 0).map(d => {
+  // Caso especial: un solo segmento = 100% → dibujar círculo completo
+  if (conDatos.length === 1) {
+    const d = conDatos[0];
+    return `<svg viewBox="0 0 ${size} ${size}" style="width:100%;max-width:${size}px;display:block;margin:0 auto;">
+      <circle cx="${cx}" cy="${cy}" r="${r}" fill="${d.color}" opacity="0.9">
+        <title>${d.label}: ${fmt(d.value)} (100%)</title>
+      </circle>
+      <circle cx="${cx}" cy="${cy}" r="${r * 0.55}" fill="var(--bg)"/>
+    </svg>`;
+  }
+
+  let anguloAcum = -90;
+  const segmentos = conDatos.map(d => {
     const angulo = (d.value / total) * 360;
     const x1 = cx + r * Math.cos(anguloAcum * Math.PI / 180);
     const y1 = cy + r * Math.sin(anguloAcum * Math.PI / 180);
