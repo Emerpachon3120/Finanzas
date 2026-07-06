@@ -80,12 +80,13 @@
 
 /* ── Section title ───────────────────────────────────────────────── */
 .section-title {
-  font-size: 12px;
-  font-weight: 800;
+  font-size: 14px;
+  font-weight: 700;
+  font-family: 'Outfit', sans-serif;
   color: var(--text);
   margin-bottom: 16px;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
+  text-transform: none;
+  letter-spacing: 0;
   display: flex;
   align-items: center;
   gap: 8px;
