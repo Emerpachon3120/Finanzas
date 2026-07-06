@@ -4,7 +4,61 @@
    ===================================================================== */
 
 // ── Helper: dona SVG simple (sin depender de charts.js) ───────────
+// ── Libertad financiera ────────────────────────────────────────────
 
+function renderLibertad(contenedorId) {
+  const el   = document.getElementById(contenedorId);
+  if (!el) return;
+  const ti   = totalIngresos();
+  const tc   = totalCuotaActiva();
+  const info = calcularLibertad();
+
+  if (!info) {
+    el.innerHTML = `<div class="empty-state" style="padding:20px 0;"><div class="empty-icon">🎉</div>¡No tienes deudas activas!</div>`;
+    return;
+  }
+  if (info.meses >= 600) {
+    el.innerHTML = `<div class="alert-box">⚠ Alguna cuota no cubre los intereses. Revisa tus tasas y montos.</div>`;
+    return;
+  }
+
+  const mesesStr = info.meses >= 12
+    ? `${Math.floor(info.meses / 12)} año(s) y ${info.meses % 12} mes(es)`
+    : `${info.meses} mes(es)`;
+  const fechaStr          = info.fecha.toLocaleDateString('es-CO', { year: 'numeric', month: 'long' });
+  const interesTotalGlobal = info.resumen.reduce((a, r) => a + r.interesTotal, 0);
+
+  el.innerHTML = `
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:16px;">
+      <div class="metric" style="border-color:rgba(16,185,129,0.3);">
+        <div class="metric-label">Fecha estimada</div>
+        <div style="font-size:14px;font-weight:800;color:var(--success);font-family:'JetBrains Mono',monospace;margin-top:4px;">${fechaStr}</div>
+        <div class="metric-sub">${mesesStr}</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Intereses totales</div>
+        <div class="metric-value red">${fmt(interesTotalGlobal)}</div>
+        <div class="metric-sub">Costo financiero</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Se liberará</div>
+        <div class="metric-value green">${fmt(tc)}</div>
+        <div class="metric-sub">Mensual adicional</div>
+      </div>
+    </div>
+    <div style="font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.08em;">PLAZO POR DEUDA</div>
+    ${info.resumen.sort((a, b) => b.meses - a.meses).map(r => {
+      const pct = Math.round(r.meses / info.meses * 100);
+      return `
+      <div style="margin-bottom:10px;">
+        <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;">
+          <span style="font-weight:700;color:var(--text);">${r.nombre}</span>
+          <span style="font-family:'JetBrains Mono',monospace;color:var(--text2);">${r.meses >= 12 ? Math.floor(r.meses/12)+'a '+r.meses%12+'m' : r.meses+'m'}</span>
+        </div>
+        <div class="progress-bar"><div class="progress-fill" style="width:${pct}%;background:var(--success);"></div></div>
+      </div>`;
+    }).join('')}`;
+}
 function _svgDonut(data, size = 160) {
   // data: [{ label, value, color }]
   const total = data.reduce((a, d) => a + d.value, 0);
