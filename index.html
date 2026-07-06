@@ -379,36 +379,92 @@
   </div>
 
   <div id="tab-analisis" class="section">
+
+    <!-- Filtros -->
+    <div class="card" style="margin-bottom:14px;">
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+        <span style="font-size:11px;color:var(--text3);font-weight:700;font-family:'JetBrains Mono',monospace;">PERÍODO:</span>
+        <select id="dash-meses-sel" class="filter-select" onchange="renderAnalisis()">
+          <option value="3">Últimos 3 meses</option>
+          <option value="6" selected>Últimos 6 meses</option>
+          <option value="12">Últimos 12 meses</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- KPIs generales -->
+    <div class="metric-grid" id="dash-kpis" style="margin-bottom:18px;"></div>
+
+    <!-- Tendencia ingresos vs gastos -->
+    <div class="card" style="margin-bottom:14px;">
+      <p class="section-title">📈 Ingresos vs Gastos</p>
+      <div id="chart-ingresos-gastos" style="overflow-x:auto;"></div>
+      <div id="chart-ingresos-gastos-leyenda" style="display:flex;flex-wrap:wrap;gap:10px;margin-top:12px;"></div>
+    </div>
+
+    <!-- Libertad financiera -->
     <div class="card" style="background:linear-gradient(135deg,rgba(16,185,129,0.06),rgba(14,165,233,0.04));border-color:rgba(16,185,129,0.22);margin-bottom:14px;">
       <p class="section-title" style="color:var(--success);">🗓️ Día de libertad financiera</p>
       <div id="libertad-detail"></div>
     </div>
-    <div class="card" style="margin-bottom:14px;">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:8px;">
-        <p class="section-title" style="margin-bottom:0;">📊 Gastos por categoría</p>
-        <div style="display:flex;gap:6px;align-items:center;">
-          <span style="font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace;">MESES:</span>
-          <select id="chart-meses-sel" class="filter-select" onchange="renderAnalisis()">
-            <option value="3">Últimos 3</option><option value="6" selected>Últimos 6</option><option value="12">Últimos 12</option>
-          </select>
-        </div>
+
+    <!-- Gastos: categoría + fuente -->
+    <div class="two-col" style="margin-bottom:14px;">
+      <div class="card">
+        <p class="section-title">🍽 Gastos por categoría</p>
+        <div id="chart-gastos-categorias" style="overflow-x:auto;"></div>
+        <div id="chart-gastos-leyenda" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;"></div>
       </div>
-      <div id="chart-gastos-categorias" style="overflow-x:auto;"></div>
-      <div id="chart-gastos-leyenda" style="display:flex;flex-wrap:wrap;gap:10px;margin-top:12px;"></div>
+      <div class="card">
+        <p class="section-title">💼 Gastos por fuente</p>
+        <div id="chart-gastos-fuente"></div>
+      </div>
     </div>
+
+    <!-- Deudas -->
+    <div class="two-col" style="margin-bottom:14px;">
+      <div class="card">
+        <p class="section-title">📋 Deudas por tasa</p>
+        <div id="dash-deudas-tasa"></div>
+      </div>
+      <div class="card">
+        <p class="section-title">✅ Estado de deudas</p>
+        <div id="dash-deudas-estado"></div>
+      </div>
+    </div>
+
+    <!-- Proyección de saldos -->
     <div class="card" style="margin-bottom:14px;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:8px;">
         <p class="section-title" style="margin-bottom:0;">📉 Proyección de saldos</p>
-        <div style="display:flex;gap:6px;align-items:center;">
-          <span style="font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace;">VISTA:</span>
-          <select id="proj-tipo-sel" class="filter-select" onchange="renderAnalisis()">
-            <option value="individual">Por deuda</option><option value="total" selected>Saldo total</option>
-          </select>
-        </div>
+        <select id="proj-tipo-sel" class="filter-select" onchange="renderAnalisis()">
+          <option value="individual">Por deuda</option>
+          <option value="total" selected>Saldo total</option>
+        </select>
       </div>
       <div id="chart-proyeccion" style="overflow-x:auto;"></div>
       <div id="chart-proj-leyenda" style="display:flex;flex-wrap:wrap;gap:10px;margin-top:12px;"></div>
     </div>
+
+    <!-- Préstamos -->
+    <div class="two-col" style="margin-bottom:14px;">
+      <div class="card">
+        <p class="section-title">🤝 Préstamos: cobrado vs pendiente</p>
+        <div id="dash-prestamos-dona"></div>
+      </div>
+      <div class="card">
+        <p class="section-title">📜 Últimos préstamos</p>
+        <div id="dash-prestamos-lista"></div>
+      </div>
+    </div>
+
+    <!-- Abonos -->
+    <div class="card" style="margin-bottom:14px;">
+      <p class="section-title">💸 Historial de abonos</p>
+      <div class="metric-grid" id="dash-abonos-metrics" style="margin-bottom:14px;"></div>
+      <div id="dash-abonos-lista"></div>
+    </div>
+
   </div>
 
   <div id="tab-estrategia" class="section">
