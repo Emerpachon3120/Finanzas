@@ -44,7 +44,6 @@ function showTab(id, el) {
   document.getElementById('tab-' + id).classList.add('active');
   el.classList.add('active');
 
-  // Llama al renderizador correspondiente
   const renderMap = {
     resumen:    renderResumen,
     sueldos:    renderSueldos,
@@ -61,20 +60,42 @@ function showTab(id, el) {
 
 // ── Selects de fuentes de ingreso ─────────────────────────────────
 
-/** Rellena los selects de "fuente de ingreso" en el formulario de gastos y deudas */
+/** Rellena el select de "fuente" en Gastos — solo sueldos recibidos este mes */
 function populateFuenteSelects() {
-  ['g-fuente', 'deu-fuente'].forEach(sid => {
-    const sel = document.getElementById(sid);
-    if (!sel) return;
+  const sel = document.getElementById('g-fuente');
+  if (sel) {
     const cur = sel.value;
+    const mes = mkKey(mesActual);
     sel.innerHTML = '';
+
+    const disponibles = sueldos.filter(s => estaRecibido(mes, s.id));
+
+    if (!disponibles.length) {
+      const o = document.createElement('option');
+      o.value = ''; o.textContent = '— Sin ingresos recibidos este mes —';
+      sel.appendChild(o);
+    } else {
+      disponibles.forEach(s => {
+        const o = document.createElement('option');
+        o.value = s.nombre; o.textContent = s.nombre;
+        sel.appendChild(o);
+      });
+    }
+    if (cur) sel.value = cur;
+  }
+
+  // Fuente de deudas: mantiene todos los sueldos (no depende del mes)
+  const selDeu = document.getElementById('deu-fuente');
+  if (selDeu) {
+    const cur = selDeu.value;
+    selDeu.innerHTML = '';
     sueldos.forEach(s => {
       const o = document.createElement('option');
       o.value = s.nombre; o.textContent = s.nombre;
-      sel.appendChild(o);
+      selDeu.appendChild(o);
     });
-    if (cur) sel.value = cur;
-  });
+    if (cur) selDeu.value = cur;
+  }
 
   // Chips de filtro por fuente en la tab de gastos
   const fc = document.getElementById('fuente-filter-chips');

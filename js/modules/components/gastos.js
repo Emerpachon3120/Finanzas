@@ -141,6 +141,7 @@ function cambiarMes(dir) {
   mesActual.month += dir;
   if (mesActual.month > 11) { mesActual.month = 0; mesActual.year++; }
   if (mesActual.month < 0)  { mesActual.month = 11; mesActual.year--; }
+  populateFuenteSelects();
   renderGastos();
 }
 
@@ -381,14 +382,16 @@ function mostrarDisponibleGasto() {
   const fuente = document.getElementById('g-fuente').value;
   const monto  = parseFloat(document.getElementById('g-monto').value) || 0;
   const el     = document.getElementById('g-fuente-disponible');
-  if (!el || !fuente) return;
+  if (!el || !fuente) { if (el) el.innerHTML = ''; return; }
 
   const disponible = disponibleFuente(fuente);
-  if (monto > disponible) {
-    el.innerHTML = `⚠ Saldo insuficiente: solo quedan ${fmt(disponible)}`;
-    el.style.color = 'var(--danger)';
-  } else {
-    el.innerHTML = `Disponible: ${fmt(disponible)}`;
-    el.style.color = 'var(--text3)';
-  }
+  const insuficiente = monto > disponible;
+
+  el.innerHTML = `
+    <span style="display:inline-flex;align-items:center;gap:5px;margin-top:6px;padding:4px 10px;border-radius:20px;
+      background:${insuficiente ? 'var(--red-bg)' : 'var(--green-bg)'};
+      font-size:11px;font-weight:700;font-family:'JetBrains Mono',monospace;
+      color:${insuficiente ? 'var(--danger)' : 'var(--success)'};">
+      ${insuficiente ? fmt(disponible) + ' disponible' : fmt(disponible) + ' disponible'}
+    </span>`;
 }
