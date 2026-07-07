@@ -24,7 +24,6 @@ function renderPrestamos() {
     return true;
   });
 
-  // Métricas
   const totalPrestado  = prestamos.reduce((a, p) => a + p.monto, 0);
   const totalPendiente = prestamos.filter(p => !p.pagado).reduce((a, p) => a + p.monto, 0);
   const totalCobrado   = prestamos.filter(p => p.pagado).reduce((a, p) => a + p.monto, 0);
@@ -47,6 +46,10 @@ function renderPrestamos() {
     .slice()
     .sort((a, b) => (b.ts || 0) - (a.ts || 0))
     .forEach(p => {
+      const detalle = [p.fecha];
+      if (p.fuente) detalle.push('Desde ' + p.fuente);
+      if (p.nota)   detalle.push(p.nota);
+
       el.innerHTML += `
       <div class="income-row" style="align-items:flex-start;padding:14px 0;">
         <div style="flex:1;">
@@ -57,7 +60,7 @@ function renderPrestamos() {
               : '<span class="badge badge-warning">Pendiente</span>'}
           </div>
           <div style="font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace;">
-            ${p.fecha} · Desde ${p.fuente}${p.nota ? ' · ' + p.nota : ''}
+            ${detalle.join(' · ')}
           </div>
         </div>
         <div style="display:flex;align-items:center;gap:10px;">
@@ -77,8 +80,6 @@ function renderPrestamos() {
 function openPrestamoModal(id = null) {
   editingPrestamoId = id;
   const sel = document.getElementById('pre-fuente');
-  document.getElementById('pre-registrar-gasto').checked = true;
-    document.getElementById('pre-fuente-wrap').style.display = 'block';
 
   sel.innerHTML = '';
   sueldos.forEach(s => {
@@ -92,13 +93,19 @@ function openPrestamoModal(id = null) {
     document.getElementById('prestamo-modal-title').textContent = 'Editar préstamo';
     document.getElementById('pre-persona').value = p.persona;
     document.getElementById('pre-monto').value   = p.monto;
-    document.getElementById('pre-fuente').value  = p.fuente;
     document.getElementById('pre-nota').value    = p.nota || '';
+
+    const tenFuente = !!p.fuente;
+    document.getElementById('pre-registrar-gasto').checked = tenFuente;
+    document.getElementById('pre-fuente-wrap').style.display = tenFuente ? 'block' : 'none';
+    if (tenFuente) document.getElementById('pre-fuente').value = p.fuente;
   } else {
     document.getElementById('prestamo-modal-title').textContent = 'Nuevo préstamo';
     document.getElementById('pre-persona').value = '';
     document.getElementById('pre-monto').value   = '';
     document.getElementById('pre-nota').value    = '';
+    document.getElementById('pre-registrar-gasto').checked = true;
+    document.getElementById('pre-fuente-wrap').style.display = 'block';
   }
   document.getElementById('prestamo-modal').classList.add('active');
 }
@@ -114,9 +121,9 @@ function editPrestamo(id) { openPrestamoModal(id); }
 function savePrestamo() {
   const persona = document.getElementById('pre-persona').value.trim();
   const monto   = parseFloat(document.getElementById('pre-monto').value);
-  const fuente  = document.getElementById('pre-fuente').value;
   const nota    = document.getElementById('pre-nota').value.trim();
   const registrarGasto = document.getElementById('pre-registrar-gasto').checked;
+  const fuente  = registrarGasto ? document.getElementById('pre-fuente').value : '';
   if (!persona || !monto) { showToast('Completa persona y monto', 'danger'); return; }
 
   if (editingPrestamoId) {
