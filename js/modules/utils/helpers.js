@@ -79,3 +79,19 @@ function totalCuotaActiva() {
     .filter(d => !d.pagada)
     .reduce((a, d) => a + d.cuota, 0);
 }
+
+/**
+ * Calcula cuánto dinero le queda disponible a una fuente específica
+ * en el mes actual, restando todos los gastos ya registrados con esa fuente.
+ */
+function disponibleFuente(nombreFuente) {
+  const sueldo = sueldos.find(s => s.nombre === nombreFuente);
+  if (!sueldo) return 0;
+
+  const mes = mkKey(mesActual);
+  const gastado = (gastosPorMes[mes] || [])
+    .filter(g => g.fuente === nombreFuente)
+    .reduce((a, g) => a + g.monto, 0);
+
+  return sueldo.monto - gastado;
+}

@@ -376,3 +376,19 @@ function aplicarSugerencia(concepto, categoria, fuente, monto) {
   document.getElementById('g-concepto').focus();
   showToast(`💡 "${concepto}" cargado — ajusta el monto si es necesario`, 'info');
 }
+
+function mostrarDisponibleGasto() {
+  const fuente = document.getElementById('g-fuente').value;
+  const monto  = parseFloat(document.getElementById('g-monto').value) || 0;
+  const el     = document.getElementById('g-fuente-disponible');
+  if (!el || !fuente) return;
+
+  const disponible = disponibleFuente(fuente);
+  if (monto > disponible) {
+    el.innerHTML = `⚠ Saldo insuficiente: solo quedan ${fmt(disponible)}`;
+    el.style.color = 'var(--danger)';
+  } else {
+    el.innerHTML = `Disponible: ${fmt(disponible)}`;
+    el.style.color = 'var(--text3)';
+  }
+}

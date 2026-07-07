@@ -262,13 +262,14 @@
         </div>
         <div class="input-group">
           <label>Fuente</label>
-          <select id="g-fuente"></select>
+          <select id="g-fuente" onchange="mostrarDisponibleGasto()"></select>
+          <div id="g-fuente-disponible" style="font-size:11px;margin-top:4px;font-family:'JetBrains Mono',monospace;"></div>
         </div>
       </div>
       <div class="input-grid" style="grid-template-columns:1fr;">
         <div class="input-group">
-          <label>Nota (opcional)</label>
-          <input type="text" id="g-nota" placeholder="Descripción adicional..."/>
+          <label>Monto ($)</label>
+          <input type="number" id="g-monto" placeholder="0" oninput="mostrarDisponibleGasto()"/>
         </div>
       </div>
       <div style="display:flex;gap:10px;">
