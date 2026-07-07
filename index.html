@@ -153,6 +153,11 @@
             <option value="total">Pago total (cancelar)</option>
           </select>
         </div>
+        <div class="input-group">
+          <label>Fuente de pago</label>
+          <select id="abono-fuente" onchange="mostrarDisponibleAbono()"></select>
+          <div id="abono-fuente-disponible"></div>
+        </div>
       </div>
       <div id="abono-result" style="margin-top:14px; display:none;">
         <div class="info-box" id="abono-info"></div>

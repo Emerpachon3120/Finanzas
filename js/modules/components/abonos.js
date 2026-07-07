@@ -1,6 +1,7 @@
 /* =====================================================================
    js/modules/components/abonos.js — Abonos a capital
    Simulador de abono, aplicación, historial de abonos.
+   Ahora con fuente de pago, saldo disponible y registro como gasto.
    ===================================================================== */
 
 // ── Select de deudas activas ──────────────────────────────────────
@@ -15,7 +16,33 @@ function populateAbonoSelect() {
     opt.textContent = `${d.nombre}  —  ${fmt(d.saldo)}`;
     sel.appendChild(opt);
   });
+
+  populateAbonoFuenteSelect();
   renderAbonoSimulator();
+}
+
+/** Rellena el select de fuente — solo sueldos recibidos este mes */
+function populateAbonoFuenteSelect() {
+  const sel = document.getElementById('abono-fuente');
+  if (!sel) return;
+  const cur = sel.value;
+  const mes = mkKey(mesActual);
+  sel.innerHTML = '';
+
+  const disponibles = sueldos.filter(s => estaRecibido(mes, s.id));
+
+  if (!disponibles.length) {
+    const o = document.createElement('option');
+    o.value = ''; o.textContent = '— Sin ingresos recibidos este mes —';
+    sel.appendChild(o);
+  } else {
+    disponibles.forEach(s => {
+      const o = document.createElement('option');
+      o.value = s.nombre; o.textContent = s.nombre;
+      sel.appendChild(o);
+    });
+  }
+  if (cur) sel.value = cur;
 }
 
 // ── Render principal de la tab ────────────────────────────────────
@@ -43,6 +70,26 @@ function renderAbonoSimulator() {
 
   document.getElementById('abono-monto').value          = '';
   document.getElementById('abono-result').style.display = 'none';
+  mostrarDisponibleAbono();
+}
+
+/** Muestra el chip de saldo disponible de la fuente elegida */
+function mostrarDisponibleAbono() {
+  const fuente = document.getElementById('abono-fuente')?.value;
+  const monto  = parseFloat(document.getElementById('abono-monto')?.value) || 0;
+  const el     = document.getElementById('abono-fuente-disponible');
+  if (!el || !fuente) { if (el) el.innerHTML = ''; return; }
+
+  const disponible = disponibleFuente(fuente);
+  const insuficiente = monto > disponible;
+
+  el.innerHTML = `
+    <span style="display:inline-flex;align-items:center;gap:5px;margin-top:6px;padding:4px 10px;border-radius:20px;
+      background:${insuficiente ? 'var(--red-bg)' : 'var(--green-bg)'};
+      font-size:11px;font-weight:700;font-family:'JetBrains Mono',monospace;
+      color:${insuficiente ? 'var(--danger)' : 'var(--success)'};">
+      ${fmt(disponible)} disponible
+    </span>`;
 }
 
 function calcularAbono() {
@@ -54,6 +101,8 @@ function calcularAbono() {
   const monto     = parseFloat(document.getElementById('abono-monto').value) || 0;
   const tipo      = document.getElementById('abono-tipo').value;
   const resultDiv = document.getElementById('abono-result');
+
+  mostrarDisponibleAbono();
 
   if (!monto || monto <= 0) { resultDiv.style.display = 'none'; return; }
   resultDiv.style.display = 'block';
@@ -89,21 +138,44 @@ function calcularAbono() {
       <div class="metric"><div class="metric-label">Cuotas nuevas</div><div class="metric-value green">${cuotasNuevas}</div></div>`;
   }
 }
+
 function aplicarAbono() {
-  const sel   = document.getElementById('abono-select');
-  const id    = parseInt(sel.value);
-  const d     = deudas.find(x => x.id === id);
-  const monto = parseFloat(document.getElementById('abono-monto').value) || 0;
-  const tipo  = document.getElementById('abono-tipo').value;
+  const sel    = document.getElementById('abono-select');
+  const id     = parseInt(sel.value);
+  const d      = deudas.find(x => x.id === id);
+  const monto  = parseFloat(document.getElementById('abono-monto').value) || 0;
+  const tipo   = document.getElementById('abono-tipo').value;
+  const fuente = document.getElementById('abono-fuente').value;
   if (!monto || !d) return;
+  if (!fuente) { showToast('Selecciona una fuente de pago', 'danger'); return; }
+
+  // Registrar como gasto del mes actual
+  const key = mkKey(mesActual);
+  if (!gastosPorMes[key]) gastosPorMes[key] = [];
+  const gastoAbono = {
+    id: g(),
+    concepto: `Abono: ${d.nombre}`,
+    monto,
+    categoria: 'Deudas',
+    fuente,
+    nota: tipo === 'total' ? 'Pago total de deuda' : 'Abono a capital',
+    ts: Date.now(),
+    mes: key,
+  };
 
   if (tipo === 'total') {
     if (monto >= d.saldo) {
-      const abono = { id: g(), deudaNombre: d.nombre, monto: d.saldo, tipo: 'Pago total', fecha: new Date().toLocaleDateString('es-CO'), ts: Date.now() };
+      const montoReal = d.saldo;
+      const abono = { id: g(), deudaNombre: d.nombre, monto: montoReal, tipo: 'Pago total', fecha: new Date().toLocaleDateString('es-CO'), ts: Date.now() };
       abonoHistorial.unshift(abono);
       d.pagada = true; d.saldo = 0; d.cuotas = 0;
       fbGuardarDeuda(d);
       fbGuardarAbono(abono);
+
+      gastoAbono.monto = montoReal;
+      gastosPorMes[key].push(gastoAbono);
+      fbGuardarGasto(gastoAbono);
+
       showToast(`🎉 ¡${d.nombre} PAGADA COMPLETAMENTE!`, 'success');
       populateAbonoSelect();
       renderDeudas();
@@ -113,6 +185,10 @@ function aplicarAbono() {
       d.saldo -= monto;
       fbGuardarDeuda(d);
       fbGuardarAbono(abono);
+
+      gastosPorMes[key].push(gastoAbono);
+      fbGuardarGasto(gastoAbono);
+
       showToast(`Abono de ${fmt(monto)} aplicado ✓`, 'success');
       renderAbonoSimulator();
     }
@@ -123,6 +199,10 @@ function aplicarAbono() {
     d.saldo = nuevoSaldo;
     fbGuardarDeuda(d);
     fbGuardarAbono(abono);
+
+    gastosPorMes[key].push(gastoAbono);
+    fbGuardarGasto(gastoAbono);
+
     if (nuevoSaldo === 0) { d.pagada = true; d.cuotas = 0; showToast(`🎉 ¡${d.nombre} liquidada!`, 'success'); }
     else { showToast(`Abono a capital de ${fmt(monto)} aplicado ✓`, 'success'); }
     renderAbonoSimulator();
@@ -133,6 +213,7 @@ function aplicarAbono() {
   document.getElementById('abono-result').style.display = 'none';
   renderAbonoHistorial();
   renderResumen();
+  renderGastos();
 }
 
 // ── Historial ─────────────────────────────────────────────────────
