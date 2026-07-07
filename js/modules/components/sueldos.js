@@ -20,6 +20,7 @@ function toggleIngresoRecibido(sueldoId) {
   fbGuardarIngresoRecibido(mes, sueldoId, nuevoEstado);
   renderSueldos();
   renderResumen();
+  populateFuenteSelects();
   renderGastos();
   showToast(nuevoEstado ? '✅ Marcado como recibido' : '⏳ Marcado como pendiente', nuevoEstado ? 'success' : 'info');
 }

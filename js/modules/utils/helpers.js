@@ -89,6 +89,8 @@ function disponibleFuente(nombreFuente) {
   if (!sueldo) return 0;
 
   const mes = mkKey(mesActual);
+  if (!estaRecibido(mes, sueldo.id)) return 0;
+
   const gastado = (gastosPorMes[mes] || [])
     .filter(g => g.fuente === nombreFuente)
     .reduce((a, g) => a + g.monto, 0);
