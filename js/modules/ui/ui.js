@@ -49,6 +49,7 @@ function showTab(id, el) {
     sueldos:    renderSueldos,
     deudas:     renderDeudas,
     abonos:     renderAbonos,
+    prestamos:  renderPrestamos,
     amortizar:  buildAmort,
     gastos:     renderGastos,
     historial:  renderHistorial,
