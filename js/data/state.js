@@ -20,7 +20,7 @@ var mesActual = { year: now.getFullYear(), month: now.getMonth() };
 var bdCargada = false;
 
 // ── Estado de UI: filtros y ordenamiento ──────────────────────────
-var debtFilter        = 'todas';
+var debtFilter = 'activas';
 var gastoFilterCat    = 'todas';
 var gastoFilterFuente = 'todas';
 var gastoSortField    = 'fecha-desc';

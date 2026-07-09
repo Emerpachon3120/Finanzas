@@ -81,8 +81,11 @@ function openPrestamoModal(id = null) {
   editingPrestamoId = id;
   const sel = document.getElementById('pre-fuente');
 
+  const mes = mkKey(mesActual);
+  const disponibles = sueldos.filter(s => estaRecibido(mes, s.id));
+
   sel.innerHTML = '';
-  sueldos.forEach(s => {
+  disponibles.forEach(s => {
     const o = document.createElement('option');
     o.value = s.nombre; o.textContent = s.nombre;
     sel.appendChild(o);
