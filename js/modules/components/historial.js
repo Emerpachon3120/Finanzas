@@ -3,6 +3,13 @@
    Lista de meses con totales y detalle al seleccionar.
    ===================================================================== */
 
+/** Calcula el total de ingresos de un mes específico (sueldos recibidos + ingresos extra) */
+function totalIngresosDeMes(mes) {
+  const sueldosRecibidos = sueldos.reduce((a, s) => a + (estaRecibido(mes, s.id) ? s.monto : 0), 0);
+  const extras = (ingresosExtra[mes] || []).reduce((a, e) => a + e.monto, 0);
+  return sueldosRecibidos + extras;
+}
+
 function renderHistorial() {
   const keys = Object.keys(gastosPorMes).sort().reverse();
   const el   = document.getElementById('historial-list');
@@ -16,8 +23,8 @@ function renderHistorial() {
   keys.forEach(k => {
     const gastos = gastosPorMes[k];
     const total  = gastos.reduce((a, g) => a + g.monto, 0);
-    const ti     = totalIngresos();
-    const pct    = Math.round(total / ti * 100);
+    const ti     = totalIngresosDeMes(k);
+    const pct    = ti > 0 ? Math.round(total / ti * 100) : 0;
     const isActive = k === selectedHistorialMes;
 
     el.innerHTML += `
@@ -37,7 +44,7 @@ function selectHistorialMes(k) {
 
   const gastos  = gastosPorMes[k] || [];
   const total   = gastos.reduce((a, g) => a + g.monto, 0);
-  const ti      = totalIngresos();
+  const ti      = totalIngresosDeMes(k);
 
   // Totales por categoría
   const catTotals = {};
