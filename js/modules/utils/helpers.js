@@ -67,10 +67,12 @@ function parsearMonto(valor) {
 
 // ── Agregaciones sobre el estado ─────────────────────────────────
 
-/** Suma de todos los ingresos activos */
+/** Suma de todos los ingresos activos (sueldos recibidos + ingresos extra del mes) */
 function totalIngresos() {
   const mes = mkKey(mesActual);
-  return sueldos.reduce((a, s) => a + (estaRecibido(mes, s.id) ? s.monto : 0), 0);
+  const sueldosRecibidos = sueldos.reduce((a, s) => a + (estaRecibido(mes, s.id) ? s.monto : 0), 0);
+  const extras = (ingresosExtra[mes] || []).reduce((a, e) => a + e.monto, 0);
+  return sueldosRecibidos + extras;
 }
 
 /** Suma de las cuotas de deudas activas (no pagadas) */
@@ -82,7 +84,7 @@ function totalCuotaActiva() {
 
 /**
  * Calcula cuánto dinero le queda disponible a una fuente específica
- * en el mes actual, restando todos los gastos ya registrados con esa fuente.
+ * en el mes actual: sueldo + ingresos extra de esa fuente - gastos ya registrados.
  */
 function disponibleFuente(nombreFuente) {
   const sueldo = sueldos.find(s => s.nombre === nombreFuente);
@@ -91,9 +93,13 @@ function disponibleFuente(nombreFuente) {
   const mes = mkKey(mesActual);
   if (!estaRecibido(mes, sueldo.id)) return 0;
 
+  const extra = (ingresosExtra[mes] || [])
+    .filter(e => e.fuenteNombre === nombreFuente)
+    .reduce((a, e) => a + e.monto, 0);
+
   const gastado = (gastosPorMes[mes] || [])
     .filter(g => g.fuente === nombreFuente)
     .reduce((a, g) => a + g.monto, 0);
 
-  return sueldo.monto - gastado;
+  return sueldo.monto + extra - gastado;
 }
