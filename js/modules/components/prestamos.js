@@ -200,9 +200,12 @@ function cobrarPrestamo(id) {
   document.getElementById('cobro-destino').value = 'nada';
   document.getElementById('cobro-fuente-wrap').style.display = 'none';
 
+  const mes = mkKey(mesActual);
+  const disponibles = sueldos.filter(s => estaRecibido(mes, s.id));
+
   const selFuente = document.getElementById('cobro-fuente');
   selFuente.innerHTML = '';
-  sueldos.forEach(s => {
+  disponibles.forEach(s => {
     const o = document.createElement('option');
     o.value = s.id; o.textContent = s.nombre;
     selFuente.appendChild(o);
