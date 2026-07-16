@@ -69,6 +69,7 @@
     <button class="tab" style="--tab-color:#f97316;" onclick="showTab('historial', this)"><i data-lucide="calendar-days" style="color:#f97316;"></i> Historial</button>
     <button class="tab" style="--tab-color:#0ea5e9;" onclick="showTab('analisis', this)"><i data-lucide="trending-up" style="color:#0ea5e9;"></i> Análisis</button>
     <button class="tab" style="--tab-color:#eab308;" onclick="showTab('estrategia', this)"><i data-lucide="lightbulb" style="color:#eab308;"></i> Estrategia</button>
+    <button class="tab" style="--tab-color:#10b981;" onclick="showTab('metas', this)"><i data-lucide="target" style="color:#10b981;"></i> Metas</button>
   </div>
 
   <div id="tab-resumen" class="section active">
@@ -117,11 +118,11 @@
       </div>
     </div>
     <div class="filter-row" id="debt-filters">
-  <span style="font-size:11px;color:var(--text3);font-weight:700;font-family:'JetBrains Mono',monospace;">ESTADO:</span>
-  <button class="filter-chip" onclick="setDebtFilter('todas', this)">Todas</button>
-  <button class="filter-chip active" onclick="setDebtFilter('activas', this)">Activas</button>
-  <button class="filter-chip" onclick="setDebtFilter('pagadas', this)">Pagadas ✓</button>
-</div>
+      <span style="font-size:11px;color:var(--text3);font-weight:700;font-family:'JetBrains Mono',monospace;">ESTADO:</span>
+      <button class="filter-chip" onclick="setDebtFilter('todas', this)">Todas</button>
+      <button class="filter-chip active" onclick="setDebtFilter('activas', this)">Activas</button>
+      <button class="filter-chip" onclick="setDebtFilter('pagadas', this)">Pagadas ✓</button>
+    </div>
     <div class="card" style="padding-bottom:6px;">
       <div class="debt-table-wrap">
         <div class="debt-header">
@@ -268,7 +269,7 @@
         <div class="input-group">
           <label>Fuente</label>
           <select id="g-fuente" onchange="mostrarDisponibleGasto()"></select>
-          <div id="g-fuente-disponible" style="font-size:11px;margin-top:4px;font-family:'JetBrains Mono',monospace;"></div>
+          <div id="g-fuente-disponible"></div>
         </div>
       </div>
       <div class="input-grid" style="grid-template-columns:1fr;">
@@ -386,7 +387,6 @@
 
   <div id="tab-analisis" class="section">
 
-    <!-- Filtros -->
     <div class="card" style="margin-bottom:14px;">
       <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
         <span style="font-size:11px;color:var(--text3);font-weight:700;font-family:'JetBrains Mono',monospace;">PERÍODO:</span>
@@ -398,23 +398,19 @@
       </div>
     </div>
 
-    <!-- KPIs generales -->
     <div class="metric-grid" id="dash-kpis" style="margin-bottom:18px;"></div>
 
-    <!-- Tendencia ingresos vs gastos -->
     <div class="card" style="margin-bottom:14px;">
       <p class="section-title"><i data-lucide="trending-up" style="color:var(--accent);width:15px;height:15px;"></i> Ingresos vs Gastos</p>
       <div id="chart-ingresos-gastos" style="overflow-x:auto;"></div>
       <div id="chart-ingresos-gastos-leyenda" style="display:flex;flex-wrap:wrap;gap:10px;margin-top:12px;"></div>
     </div>
 
-    <!-- Libertad financiera -->
     <div class="card" style="background:linear-gradient(135deg,rgba(16,185,129,0.06),rgba(14,165,233,0.04));border-color:rgba(16,185,129,0.22);margin-bottom:14px;">
       <p class="section-title" style="color:var(--success);"><i data-lucide="calendar-check" style="color:var(--success);width:15px;height:15px;"></i> Día de libertad financiera</p>
       <div id="libertad-detail"></div>
     </div>
 
-    <!-- Gastos: categoría + fuente -->
     <div class="two-col" style="margin-bottom:14px;">
       <div class="card">
         <p class="section-title"><i data-lucide="pie-chart" style="color:var(--accent);width:15px;height:15px;"></i> Gastos por categoría</p>
@@ -427,7 +423,6 @@
       </div>
     </div>
 
-    <!-- Deudas -->
     <div class="two-col" style="margin-bottom:14px;">
       <div class="card">
         <p class="section-title"><i data-lucide="file-text" style="color:var(--danger);width:15px;height:15px;"></i> Deudas por tasa</p>
@@ -439,7 +434,6 @@
       </div>
     </div>
 
-    <!-- Proyección de saldos -->
     <div class="card" style="margin-bottom:14px;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:8px;">
         <p class="section-title" style="margin-bottom:0;"><i data-lucide="trending-down" style="color:var(--accent);width:15px;height:15px;"></i> Proyección de saldos</p>
@@ -452,7 +446,6 @@
       <div id="chart-proj-leyenda" style="display:flex;flex-wrap:wrap;gap:10px;margin-top:12px;"></div>
     </div>
 
-    <!-- Préstamos -->
     <div class="two-col" style="margin-bottom:14px;">
       <div class="card">
         <p class="section-title"><i data-lucide="handshake" style="color:var(--warning);width:15px;height:15px;"></i> Préstamos: cobrado vs pendiente</p>
@@ -464,7 +457,6 @@
       </div>
     </div>
 
-    <!-- Abonos -->
     <div class="card" style="margin-bottom:14px;">
       <p class="section-title"><i data-lucide="piggy-bank" style="color:var(--success);width:15px;height:15px;"></i> Historial de abonos</p>
       <div class="metric-grid" id="dash-abonos-metrics" style="margin-bottom:14px;"></div>
@@ -491,6 +483,17 @@
       <p style="font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace;margin-top:8px;">El dinero extra se aplica cada mes a la deuda prioritaria según cada estrategia.</p>
     </div>
     <div id="estrategia-resultado"></div>
+  </div>
+
+  <div id="tab-metas" class="section">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+      <p class="section-title" style="margin-bottom:0;"><i data-lucide="target" style="color:var(--success);width:15px;height:15px;"></i> Metas de ahorro</p>
+      <button class="btn-add" style="width:auto;padding:9px 18px;" onclick="openMetaModal()">+ Nueva meta</button>
+    </div>
+
+    <div class="metric-grid" id="metas-summary" style="margin-bottom:18px;"></div>
+
+    <div id="metas-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;"></div>
   </div>
 
 </div>
@@ -573,7 +576,6 @@
   </div>
 </div>
 
-<!-- Modal: Cobro de préstamo -->
 <div class="modal-overlay" id="cobro-prestamo-modal">
   <div class="modal">
     <div class="modal-title" style="color:var(--success);display:flex;align-items:center;gap:8px;"><i data-lucide="circle-dollar-sign" style="color:var(--success);width:20px;height:20px;"></i> Cobrar préstamo</div>
@@ -613,6 +615,62 @@
     <div class="modal-actions">
       <button class="btn-secondary" onclick="closeCobroPrestamoModal()">Cancelar</button>
       <button class="btn-success" onclick="confirmarCobroPrestamo()">✓ Confirmar cobro</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Nueva / Editar meta de ahorro -->
+<div class="modal-overlay" id="meta-modal">
+  <div class="modal">
+    <div class="modal-title" id="meta-modal-title" style="color:var(--success);display:flex;align-items:center;gap:8px;"><i data-lucide="target" style="color:var(--success);width:20px;height:20px;"></i> Nueva meta de ahorro</div>
+    <div class="modal-grid">
+      <div class="input-group"><label>Nombre de la meta</label><input type="text" id="meta-nombre" placeholder="Ej: Viaje a Cartagena"/></div>
+      <div class="input-group"><label>Monto objetivo ($)</label><input type="number" id="meta-objetivo" placeholder="Ej: 2000000"/></div>
+      <div class="input-group">
+        <label>¿Dónde está guardado?</label>
+        <select id="meta-lugar">
+          <option value="Nequi">Nequi</option>
+          <option value="Daviplata">Daviplata</option>
+          <option value="Bancolombia">Bancolombia</option>
+          <option value="Davivienda">Davivienda</option>
+          <option value="Efectivo">Efectivo</option>
+        </select>
+      </div>
+      <div class="input-group">
+        <label>Fecha límite (opcional)</label>
+        <input type="month" id="meta-fecha" style="background:var(--bg2);border:1.5px solid var(--border);border-radius:9px;color:var(--text);font-family:'Outfit',sans-serif;font-size:13px;font-weight:500;padding:9px 12px;width:100%;"/>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeMetaModal()">Cancelar</button>
+      <button class="btn-add" onclick="saveMeta()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Aportar a meta -->
+<div class="modal-overlay" id="aporte-meta-modal">
+  <div class="modal" style="max-width:420px;">
+    <div class="modal-title" style="color:var(--success);display:flex;align-items:center;gap:8px;"><i data-lucide="piggy-bank" style="color:var(--success);width:20px;height:20px;"></i> Aportar a meta</div>
+    <p style="font-size:13px;color:var(--text3);margin-bottom:18px;">
+      Ahorrando para <strong id="aporte-meta-nombre" style="color:var(--text);"></strong> — faltan <strong id="aporte-meta-falta" style="color:var(--success);"></strong>
+    </p>
+
+    <div class="modal-grid">
+      <div class="input-group">
+        <label>Monto a aportar ($)</label>
+        <input type="number" id="aporte-monto" placeholder="Ej: 100000" oninput="mostrarDisponibleAporte()"/>
+      </div>
+      <div class="input-group">
+        <label>Fuente de pago</label>
+        <select id="aporte-fuente" onchange="mostrarDisponibleAporte()"></select>
+        <div id="aporte-fuente-disponible"></div>
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeAporteMetaModal()">Cancelar</button>
+      <button class="btn-success" onclick="confirmarAporteMeta()">✓ Confirmar aporte</button>
     </div>
   </div>
 </div>
@@ -710,6 +768,7 @@
 <script src="js/modules/components/deudas.js"></script>
 <script src="js/modules/components/abonos.js"></script>
 <script src="js/modules/components/prestamos.js"></script>
+<script src="js/modules/components/metas.js"></script>
 <script src="js/modules/components/amortizacion.js"></script>
 <script src="js/modules/components/gastos.js"></script>
 <script src="js/modules/components/historial.js"></script>

@@ -28,7 +28,7 @@ async function cargarDesdeFirebase() {
   try {
     showToast('🔗 Cargando datos...', 'info');
 
-    const [snapS, snapD, snapG, snapA, snapP, snapI, snapE] = await Promise.all([
+    const [snapS, snapD, snapG, snapA, snapP, snapI, snapE, snapM] = await Promise.all([
       userCollection('sueldos').get(),
       userCollection('deudas').get(),
       userCollection('gastos').get(),
@@ -36,6 +36,7 @@ async function cargarDesdeFirebase() {
       userCollection('prestamos').get(),
       userCollection('ingresos_recibidos').get(),
       userCollection('ingresos_extra').get(),
+      userCollection('metas').get(),
     ]);
 
     sueldos = snapS.docs.map(d => d.data());
@@ -79,6 +80,10 @@ async function cargarDesdeFirebase() {
       ingresosExtra[data.mes].push(data);
     });
 
+    // Metas de ahorro
+    metas = snapM.docs.map(d => d.data())
+      .sort((a, b) => (b.ts || 0) - (a.ts || 0));
+
     _sincronizarContadorIds();
     actualizarTodo();
 
@@ -95,7 +100,7 @@ async function guardarEnFirebase() {
     showToast('☁️ Guardando...', 'info');
     const batch = db.batch();
 
-    const [snapS, snapD, snapG, snapA, snapP, snapI, snapE] = await Promise.all([
+    const [snapS, snapD, snapG, snapA, snapP, snapI, snapE, snapM] = await Promise.all([
       userCollection('sueldos').get(),
       userCollection('deudas').get(),
       userCollection('gastos').get(),
@@ -103,6 +108,7 @@ async function guardarEnFirebase() {
       userCollection('prestamos').get(),
       userCollection('ingresos_recibidos').get(),
       userCollection('ingresos_extra').get(),
+      userCollection('metas').get(),
     ]);
 
     snapS.docs.forEach(d => batch.delete(d.ref));
@@ -135,6 +141,9 @@ async function guardarEnFirebase() {
       lista.forEach(e => batch.set(userCollection('ingresos_extra').doc(String(e.id)), { ...e, mes }));
     });
 
+    snapM.docs.forEach(d => batch.delete(d.ref));
+    metas.forEach(m => batch.set(userCollection('metas').doc(String(m.id)), m));
+
     await batch.commit();
     showToast('☁️ Todo guardado correctamente', 'success');
   } catch (err) {
@@ -151,6 +160,7 @@ function _sincronizarContadorIds() {
     ...prestamos.map(x => x.id),
     ...Object.values(gastosPorMes).flat().map(x => x.id),
     ...Object.values(ingresosExtra).flat().map(x => x.id),
+    ...metas.map(x => x.id),
   ].filter(id => typeof id === 'number' && isFinite(id));
 
   if (todosLosIds.length > 0) {
@@ -216,4 +226,14 @@ async function fbGuardarIngresoExtra(e) {
 
 async function fbEliminarIngresoExtra(id) {
   await userCollection('ingresos_extra').doc(String(id)).delete();
+}
+
+// ── Metas de ahorro ────────────────────────────────────────────────
+
+async function fbGuardarMeta(m) {
+  await userCollection('metas').doc(String(m.id)).set(m);
+}
+
+async function fbEliminarMeta(id) {
+  await userCollection('metas').doc(String(id)).delete();
 }

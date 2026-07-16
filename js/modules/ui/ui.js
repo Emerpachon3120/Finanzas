@@ -45,17 +45,18 @@ function showTab(id, el) {
   el.classList.add('active');
 
   const renderMap = {
-    resumen:    renderResumen,
-    sueldos:    renderSueldos,
-    deudas:     renderDeudas,
-    abonos:     renderAbonos,
-    prestamos:  renderPrestamos,
-    amortizar:  buildAmort,
-    gastos:     renderGastos,
-    historial:  renderHistorial,
-    analisis:   renderAnalisis,
-    estrategia: renderEstrategia,
-  };
+  resumen:    renderResumen,
+  sueldos:    renderSueldos,
+  deudas:     renderDeudas,
+  abonos:     renderAbonos,
+  prestamos:  renderPrestamos,
+  amortizar:  buildAmort,
+  gastos:     renderGastos,
+  historial:  renderHistorial,
+  analisis:   renderAnalisis,
+  estrategia: renderEstrategia,
+  metas:      renderMetas,
+};
   if (renderMap[id]) renderMap[id]();
 }
 
