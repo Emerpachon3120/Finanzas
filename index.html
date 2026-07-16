@@ -278,10 +278,11 @@
           <input type="text" id="g-nota" placeholder="Descripción adicional..."/>
         </div>
       </div>
-      <div style="display:flex;gap:10px;">
-        <button class="btn-add" onclick="agregarGasto()">+ Agregar gasto</button>
-        <button class="btn-cuota" onclick="openPagarCuotaModal()"><i data-lucide="credit-card" style="width:14px;height:14px;vertical-align:-2px;margin-right:4px;"></i>Pagar cuota</button>
-      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;">
+      <button class="btn-add" style="flex:1;min-width:140px;" onclick="agregarGasto()">+ Agregar gasto</button>
+      <button class="btn-cuota" style="flex:1;min-width:140px;" onclick="openPagarCuotaModal()"><i data-lucide="credit-card" style="width:14px;height:14px;vertical-align:-2px;margin-right:4px;"></i>Pagar cuota</button>
+      <button class="btn-cuota" style="flex:1;min-width:140px;background:linear-gradient(135deg,#10b981,#059669);" onclick="openAporteMetaSelector()"><i data-lucide="target" style="width:14px;height:14px;vertical-align:-2px;margin-right:4px;"></i>Aportar a meta</button>
+    </div>
     </div>
 
     <div class="metric-grid" id="gastos-metrics">

@@ -239,3 +239,26 @@ function confirmarAporteMeta() {
 
   showToast(completa ? `🎉 ¡Meta "${m.nombre}" completada!` : `Aporte de ${fmt(monto)} registrado ✓`, 'success');
 }
+
+function openAporteMetaSelector() {
+  if (!metas.length) {
+    showToast('No tienes metas creadas. Ve a la pestaña Metas para crear una.', 'info');
+    return;
+  }
+  const activas = metas.filter(m => m.acumulado < m.objetivo);
+  if (!activas.length) {
+    showToast('¡Todas tus metas están completas! 🎉', 'success');
+    return;
+  }
+  if (activas.length === 1) {
+    openAporteMetaModal(activas[0].id);
+    return;
+  }
+  // Si hay varias metas activas, usa un prompt simple para elegir
+  const opciones = activas.map((m, i) => `${i + 1}. ${m.nombre}`).join('\n');
+  const seleccion = prompt(`¿A qué meta quieres aportar?\n\n${opciones}`);
+  const idx = parseInt(seleccion) - 1;
+  if (idx >= 0 && idx < activas.length) {
+    openAporteMetaModal(activas[idx].id);
+  }
+}
