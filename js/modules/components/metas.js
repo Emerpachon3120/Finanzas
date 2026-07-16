@@ -254,11 +254,30 @@ function openAporteMetaSelector() {
     openAporteMetaModal(activas[0].id);
     return;
   }
-  // Si hay varias metas activas, usa un prompt simple para elegir
-  const opciones = activas.map((m, i) => `${i + 1}. ${m.nombre}`).join('\n');
-  const seleccion = prompt(`¿A qué meta quieres aportar?\n\n${opciones}`);
-  const idx = parseInt(seleccion) - 1;
-  if (idx >= 0 && idx < activas.length) {
-    openAporteMetaModal(activas[idx].id);
-  }
+
+  const lugar = { 'Nequi': '📱', 'Daviplata': '💳', 'Bancolombia': '🏦', 'Davivienda': '🏛️', 'Efectivo': '💵' };
+  const el = document.getElementById('select-meta-lista');
+  el.innerHTML = activas.map(m => {
+    const pct = Math.round((m.acumulado / m.objetivo) * 100);
+    return `
+    <div onclick="closeSelectMetaModal();openAporteMetaModal(${m.id})"
+      style="cursor:pointer;padding:14px;border:1.5px solid var(--border);border-radius:12px;transition:all 0.15s;"
+      onmouseover="this.style.borderColor='var(--success)';this.style.background='var(--green-bg)'"
+      onmouseout="this.style.borderColor='var(--border)';this.style.background='transparent'">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+        <span style="font-weight:700;font-size:14px;">${lugar[m.lugar] || '💰'} ${m.nombre}</span>
+        <span style="font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace;">${pct}%</span>
+      </div>
+      <div class="progress-bar" style="margin-bottom:4px;">
+        <div class="progress-fill" style="width:${pct}%;background:var(--success);"></div>
+      </div>
+      <div style="font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace;">${fmt(m.acumulado)} de ${fmt(m.objetivo)}</div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('select-meta-modal').classList.add('active');
+}
+
+function closeSelectMetaModal() {
+  document.getElementById('select-meta-modal').classList.remove('active');
 }
