@@ -1,10 +1,12 @@
 /* =====================================================================
    js/modules/components/prestamos.js — Gestión de préstamos a terceros
    Registrar, cobrar, eliminar préstamos que le haces a otras personas.
+   Ahora con filtro y resumen agrupado por persona.
    ===================================================================== */
 
 var editingPrestamoId = null;
 var prestamoFilter = 'todos';
+var prestamoPersonaFilter = 'todas';
 
 // ── Filtros ───────────────────────────────────────────────────────
 
@@ -15,12 +17,29 @@ function setPrestamoFilter(f, el) {
   renderPrestamos();
 }
 
+function setPrestamoPersonaFilter(persona, el) {
+  prestamoPersonaFilter = persona;
+  document.querySelectorAll('#prestamo-persona-filters .filter-chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  renderPrestamos();
+}
+
 // ── Renderizado ───────────────────────────────────────────────────
 
 function renderPrestamos() {
+  // Chips de personas (dinámico, según nombres registrados)
+  const personasUnicas = [...new Set(prestamos.map(p => p.persona))].sort();
+  const elPersonas = document.getElementById('prestamo-persona-filters');
+  if (elPersonas) {
+    elPersonas.innerHTML = personasUnicas.map(persona => `
+      <button class="filter-chip ${prestamoPersonaFilter === persona ? 'active' : ''}" onclick="setPrestamoPersonaFilter('${persona.replace(/'/g, "\\'")}', this)">${persona}</button>
+    `).join('');
+  }
+
   let list = prestamos.filter(p => {
     if (prestamoFilter === 'pendientes' && p.pagado) return false;
     if (prestamoFilter === 'pagados' && !p.pagado)   return false;
+    if (prestamoPersonaFilter !== 'todas' && p.persona !== prestamoPersonaFilter) return false;
     return true;
   });
 
@@ -33,6 +52,33 @@ function renderPrestamos() {
     <div class="metric"><div class="metric-label">Total prestado</div><div class="metric-value blue">${fmt(totalPrestado)}</div><div class="metric-sub">${prestamos.length} préstamo(s)</div></div>
     <div class="metric"><div class="metric-label">Por cobrar</div><div class="metric-value amber">${fmt(totalPendiente)}</div><div class="metric-sub">${numPendientes} pendiente(s)</div></div>
     <div class="metric"><div class="metric-label">Ya cobrado</div><div class="metric-value green">${fmt(totalCobrado)}</div><div class="metric-sub">${prestamos.length - numPendientes} pagado(s)</div></div>`;
+
+  // ── Resumen por persona ──────────────────────────────────────────
+  const elResumenPersonas = document.getElementById('prestamo-resumen-personas');
+  if (elResumenPersonas) {
+    if (!personasUnicas.length) {
+      elResumenPersonas.innerHTML = '';
+    } else {
+      elResumenPersonas.innerHTML = personasUnicas.map(persona => {
+        const deEstaPersona = prestamos.filter(p => p.persona === persona);
+        const pendiente = deEstaPersona.filter(p => !p.pagado).reduce((a, p) => a + p.monto, 0);
+        const cobrado   = deEstaPersona.filter(p => p.pagado).reduce((a, p) => a + p.monto, 0);
+        const nPend     = deEstaPersona.filter(p => !p.pagado).length;
+        const nCobr     = deEstaPersona.filter(p => p.pagado).length;
+
+        return `
+        <div class="card" style="padding:14px 18px;margin-bottom:8px;cursor:pointer;" onclick="setPrestamoPersonaFilter('${persona.replace(/'/g, "\\'")}', document.querySelector('#prestamo-persona-filters button'))">
+          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
+            <span style="font-weight:800;font-size:14px;color:var(--text);">${persona}</span>
+            <div style="display:flex;gap:14px;font-size:12px;">
+              ${pendiente > 0 ? `<span style="color:var(--warning);font-weight:700;font-family:'JetBrains Mono',monospace;">Debe ${fmt(pendiente)} <span style="color:var(--text3);font-weight:400;">(${nPend})</span></span>` : ''}
+              ${cobrado > 0 ? `<span style="color:var(--success);font-weight:700;font-family:'JetBrains Mono',monospace;">Pagó ${fmt(cobrado)} <span style="color:var(--text3);font-weight:400;">(${nCobr})</span></span>` : ''}
+            </div>
+          </div>
+        </div>`;
+      }).join('');
+    }
+  }
 
   const el = document.getElementById('prestamos-list');
   el.innerHTML = '';

@@ -180,12 +180,20 @@
       <button class="btn-add" style="width:auto;padding:9px 18px;" onclick="openPrestamoModal()">+ Nuevo préstamo</button>
     </div>
     <div class="metric-grid" id="prestamos-metrics"></div>
-    <div class="filter-row" id="prestamo-filters" style="margin-bottom:16px;">
-      <span style="font-size:11px;color:var(--text3);font-weight:700;font-family:'JetBrains Mono',monospace;">ESTADO:</span>
-      <button class="filter-chip active" onclick="setPrestamoFilter('todos', this)">Todos</button>
-      <button class="filter-chip" onclick="setPrestamoFilter('pendientes', this)">Pendientes</button>
-      <button class="filter-chip" onclick="setPrestamoFilter('pagados', this)">Cobrados ✓</button>
-    </div>
+    <div class="filter-row" id="prestamo-filters" style="margin-bottom:10px;">
+  <span style="font-size:11px;color:var(--text3);font-weight:700;font-family:'JetBrains Mono',monospace;">ESTADO:</span>
+  <button class="filter-chip active" onclick="setPrestamoFilter('todos', this)">Todos</button>
+  <button class="filter-chip" onclick="setPrestamoFilter('pendientes', this)">Pendientes</button>
+  <button class="filter-chip" onclick="setPrestamoFilter('pagados', this)">Cobrados ✓</button>
+</div>
+
+<div class="filter-row" style="margin-bottom:16px;">
+  <span style="font-size:11px;color:var(--text3);font-weight:700;font-family:'JetBrains Mono',monospace;">PERSONA:</span>
+  <button class="filter-chip active" onclick="setPrestamoPersonaFilter('todas', this)">Todas</button>
+  <div id="prestamo-persona-filters" style="display:flex;gap:6px;flex-wrap:wrap;"></div>
+</div>
+
+<div id="prestamo-resumen-personas" style="margin-bottom:14px;"></div>
     <div class="card">
       <div id="prestamos-list"></div>
     </div>
